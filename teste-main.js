@@ -30,6 +30,27 @@ app.get('/accountdata', async (req, res) => {
 
 app.get('/offerlist', async (req, res) => { 
   try {
+    
+    //jay11
+    // Lista os jogos que estão a venda
+    const offset = 100; // A partir de qual jogo vai mostrar
+    const limit = 100; // Limit por página, acho que não pode ser maior que 100
+    try {
+          const response = await axios.get(`${url}/api/public/v1/offers?offset=${offset}&limit=${limit}`, {
+                headers: {
+                      'Authorization': `Bearer ${token}`
+                      // 'Content-Type': 'application/json',
+                },
+          });
+          const quantidade = response.data.length;
+          console.log(quantidade);
+          res.json(response.data);
+    } catch (error) {
+          console.error(error);
+          res.status(500).json({ error: 'Erro ao consultar a API externa.' });
+    }
+    //jay11
+    
     console.log('Recebida requisição para /offerlist');
 
     const offerListResponse = await axios.get(`${url}/api/public/v1/offer/list`, {
