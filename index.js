@@ -73,22 +73,20 @@ app.get('/offer-list', async (req, res) => {
       }
 })
 
-// app.get('/offer-list', async (req, res) => {
-//       // Lista os jogos que estão a venda
-//       const offset = 100;
-//       const limit = 100;
-//       try {
-//             const response = await axios.get(`${url}/api/public/v1/offers?offset=${offset}&limit=${limit}`, {
-//                   headers: {
-//                         'Authorization': `Bearer ${token}`,
-//                         'Content-Type': 'application/json',
-//                   },
-//             });
-//             const quantidade = response.data.length;
-//             console.log(quantidade);
-//             res.json(response.data);
-//       } catch (error) {
-//             console.error(error);
-//             res.status(500).json({ error: 'Erro ao consultar a API externa.' });
-//       }
-// })
+app.post('/crete-offer', async (req, res) => {
+      // Lista os jogos que estão a venda
+      try {
+            const response = await axios.get(`${url}//api/public/v1/offers`, {
+                  headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                  },
+            });
+            const quantidade = response.data.length;
+            console.log(quantidade);
+            res.json(response.data);
+      } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Erro ao consultar a API externa.' });
+      }
+})
