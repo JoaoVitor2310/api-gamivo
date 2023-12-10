@@ -72,6 +72,7 @@ app.get('/offer-list', async (req, res) => {
             res.status(500).json({ error: 'Erro ao consultar a API externa.' });
       }
 })
+
 app.post('/create-offer', async (req, res) => {
       try {
         const {
