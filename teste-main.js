@@ -54,24 +54,61 @@ app.get('/calculate-final-price', async (req, res) => {
 
 // Offers
 app.get('/offer-list', async (req, res) => {
-      // Lista os jogos que estão a venda
-      const offset = 100; // A partir de qual jogo vai mostrar
-      const limit = 100; // Limit por página, acho que não pode ser maior que 100
+      const offset = 100;
+      const limit = 100;
+    
       try {
-            const response = await axios.get(`${url}/api/public/v1/offers?offset=${offset}&limit=${limit}`, {
-                  headers: {
-                        'Authorization': `Bearer ${token}`
-                        // 'Content-Type': 'application/json',
-                  },
-            });
-            const quantidade = response.data.length;
-            console.log(quantidade);
-            res.json(response.data);
+        const response = await axios.get(`${url}/api/public/v1/offers?offset=${offset}&limit=${limit}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+        });
+    
+        const offers = response.data;
+        const gameIds = offers.map(offer => offer.product_id);
+    
+        console.log('Product IDs of available games:', gameIds);
+    
+        res.json(offers);
       } catch (error) {
-            console.error(error);
-            res.status(500).json({ error: 'Erro ao consultar a API externa.' });
+        console.error(error);
+        res.status(500).json({ error: 'Erro ao consultar a API externa.' });
       }
-})
+    });
+
+    app.get('/compareprice/:productId', async (req, res) => {
+      try {
+        const productId = req.params.productId;
+    
+        // Obtém a oferta do seu jogo
+        const yourOffer = await axios.get(`${url}/api/public/v1/offer/${productId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+    
+        // Obtém outras ofertas para o mesmo produto
+        const otherOffers = await axios.get(`${url}/api/public/v1/offers?product=${productId}&limit=5`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+    
+        // Compara os preços
+        const yourPrice = yourOffer.data.seller_price;
+        const otherPrices = otherOffers.data.map(offer => offer.seller_price);
+    
+        // Verifica se o seu preço é menor que os outros preços
+        const isCheaper = otherPrices.every(price => yourPrice < price);
+    
+        res.json({ isCheaper, yourPrice, otherPrices });
+      } catch (error) {
+        console.error('Erro ao comparar preços:', error.message);
+        res.status(500).json({ error: 'Erro ao comparar preços.' });
+      }
+    });
+
+
 app.post('/create-offer', async (req, res) => {
       try {
         const {
