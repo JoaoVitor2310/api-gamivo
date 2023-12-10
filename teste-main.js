@@ -74,6 +74,8 @@ app.get('/offer-list', async (req, res) => {
         console.error(error);
         res.status(500).json({ error: 'Erro ao consultar a API externa.' });
       }
+})
+
     });
 
     app.get('/compareprice/:productId', async (req, res) => {
