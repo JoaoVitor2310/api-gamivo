@@ -21,3 +21,10 @@ Content-Type: application/json
     "keys": "",
     "is_preorder": ""
 }
+
+###
+GET http://localhost:3000/search/offer/2499645
+###
+GET http://localhost:3000/compare/33680
+###
+# GET http://localhost:3000/compare-all-games
