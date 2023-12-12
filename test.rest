@@ -13,23 +13,26 @@ Content-Type: application/json
 
 {
     "product": "",
-    "wholesale_mode": "",
-    "seller_price": "",
+    "wholesale_mode": "0",
+    "seller_price": 15,
     "tier_one_seller_price": "", 
     "tier_two_seller_price": "",
-    "status": "",
-    "keys": "",
-    "is_preorder": ""
+    "status": 1,
+    "keys": 3,
+    "is_preorder": false
 }
 
 ###
 GET http://localhost:3000/search/offer/2499645
 
 ###
+GET http://localhost:3000/products-list
+
+###
 GET http://localhost:3000/compare/all
 
 ###
-GET http://localhost:3000/compare/141433
+GET http://localhost:3000/compare/144801
 
 
 ###
