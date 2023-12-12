@@ -6,7 +6,7 @@ GET http://localhost:3000/account-data
 GET http://localhost:3000/calculate-final-price
 
 ###
-GET http://localhost:3000/offer-list
+GET http://localhost:3000/offer-list?offset=400&limit=1000
 ###
 POST http://localhost:3000/create-offer
 Content-Type: application/json
@@ -24,7 +24,13 @@ Content-Type: application/json
 
 ###
 GET http://localhost:3000/search/offer/2499645
+
 ###
-GET http://localhost:3000/compare/33680
+GET http://localhost:3000/compare/all
+
+###
+GET http://localhost:3000/compare/141433
+
+
 ###
 # GET http://localhost:3000/compare-all-games
