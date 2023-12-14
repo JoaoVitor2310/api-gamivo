@@ -135,7 +135,7 @@ app.get('/search/offer/:id', async (req, res) => {
                   },
             });
             // console.log(response.data.product_name);
-            console.log(slugify(response.data.product_name))
+            //console.log(slugify(response.data.product_name))
             res.json(response.data);
       } catch (error) {
             console.error(error);
