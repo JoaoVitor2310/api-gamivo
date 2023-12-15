@@ -6,16 +6,17 @@ GET http://localhost:3000/account-data
 GET http://localhost:3000/calculate-final-price
 
 ###
-GET http://localhost:3000/offer-list?offset=400&limit=1000
+GET http://localhost:3000/api/offers/offersList?offset=4400&limit=100
+
 ###
-POST http://localhost:3000/create-offer
+POST http://localhost:3000/api/offers/createOffer
 Content-Type: application/json
 
 {
     "product": "",
     "wholesale_mode": "0",
     "seller_price": 15,
-    "tier_one_seller_price": "", 
+    "tier_one_seller_price": "",
     "tier_two_seller_price": "",
     "status": 1,
     "keys": 3,
@@ -23,16 +24,19 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:3000/search/offer/2499645
+GET http://localhost:3000/api/offers/search/2499645
 
 ###
-GET http://localhost:3000/products-list
+GET http://localhost:3000/api/products/productsList
 
 ###
-GET http://localhost:3000/compare/all
+GET http://localhost:3000/api/products/productIds
 
 ###
-GET http://localhost:3000/compare/144801
+GET http://localhost:3000/api/products/compareAll
+
+###
+GET http://localhost:3000/api/products/compareById/144801
 
 
 ###
