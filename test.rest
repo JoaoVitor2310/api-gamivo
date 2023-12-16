@@ -1,9 +1,9 @@
 # API Gamivo "postman"
 ###
-GET http://localhost:3000/account-data
+GET http://localhost:3000/api/accounts/accountData
 
 ###
-GET http://localhost:3000/calculate-final-price
+GET http://localhost:3000/api/accounts/calculateFinalPrice
 
 ###
 GET http://localhost:3000/api/offers/offersList?offset=4400&limit=100
