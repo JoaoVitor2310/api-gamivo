@@ -4,6 +4,7 @@ const token = process.env.TOKEN;
 
 const productsList = async (req, res) => { // Penúltimo endpoint de products
     // Lista os jogos que o usuário tem disponível? Agora estou na dúvida se é isso msm. Útil para ver os detalhes dos jogos
+    // Ainda não sei como pode ser útil para a gente
     const { offset = 0, limit = 100 } = req.query;
 
     // const offset = 100; // A partir de qual jogo vai mostrar
@@ -26,7 +27,7 @@ const productsList = async (req, res) => { // Penúltimo endpoint de products
 }
 
 const productIds = async (req, res) => {
-    // Lista os jogos que já estiveram a venda, podem ter jogos com o status 0 pelo visto.
+    // Lista os jogos que estão/tiveram a venda, podem ter jogos com o status 0 pelo visto.
     let { offset = 100, limit = 100 } = req.query;
 
     // offset: A partir de qual jogo vai mostrar

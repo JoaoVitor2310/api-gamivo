@@ -4,7 +4,7 @@ const token = process.env.TOKEN;
 
 
 const offerList = async (req, res) => {
-    // Lista os jogos que estão a venda
+    // Lista os jogos que estão a venda em páginas de 100
     const { offset = 100, limit = 100 } = req.query;
 
       // A partir de qual jogo vai mostrar
@@ -28,7 +28,6 @@ const offerList = async (req, res) => {
 
 const createOffer = async (req, res) => {
     // Coloca um jogo a venda
-
     try {
           const {
                 product,
