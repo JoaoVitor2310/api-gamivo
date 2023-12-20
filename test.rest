@@ -21,3 +21,11 @@ Content-Type: application/json
     "keys": "",
     "is_preorder": ""
 }
+
+###
+POST http://localhost:3000/catch-from-sheet
+Content-Type: application/json
+{
+  "filePath": "caminho/para/seu/arquivo/BestbuyTrue.xlsx",
+  "sheetName": "Venda-Chave-Troca"
+}
