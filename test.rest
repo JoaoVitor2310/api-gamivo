@@ -1,26 +1,45 @@
 # API Gamivo "postman"
 ###
-GET http://localhost:3000/account-data
+GET http://localhost:3000/api/accounts/accountData
 
 ###
-GET http://localhost:3000/calculate-final-price
+GET http://localhost:3000/api/accounts/calculateFinalPrice
 
 ###
-GET http://localhost:3000/offer-list
+GET http://localhost:3000/api/offers/offersList?offset=4400&limit=100
+
 ###
-POST http://localhost:3000/create-offer
+POST http://localhost:3000/api/offers/createOffer
 Content-Type: application/json
 
 {
     "product": "",
-    "wholesale_mode": "",
-    "seller_price": "",
-    "tier_one_seller_price": "", 
+    "wholesale_mode": "0",
+    "seller_price": 15,
+    "tier_one_seller_price": "",
     "tier_two_seller_price": "",
-    "status": "",
-    "keys": "",
-    "is_preorder": ""
+    "status": 1,
+    "keys": 3,
+    "is_preorder": false
 }
+
+###
+GET http://localhost:3000/api/offers/search/2499645
+
+###
+GET http://localhost:3000/api/products/productsList
+
+###
+GET http://localhost:3000/api/products/productIds
+
+###
+GET http://localhost:3000/api/products/compareAll
+
+###
+GET http://localhost:3000/api/products/compareById/144801
+
+###
+GET http://localhost:3000/api/jobs/attPrices
 
 ###
 POST http://localhost:3000/catch-from-sheet
