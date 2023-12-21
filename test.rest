@@ -40,3 +40,11 @@ GET http://localhost:3000/api/products/compareById/44112
 
 ###
 GET http://localhost:3000/api/jobs/attPrices
+
+###
+GET http://localhost:3000/api/sheets/catchFromSheet
+# Content-Type: application/json
+# {
+#   "filePath": "./BestbuyTrue.xlsx",
+#   "sheetName": "Venda-Chave-Troca"
+# }
