@@ -36,7 +36,7 @@ GET http://localhost:3000/api/products/productIds
 GET http://localhost:3000/api/products/compareAll
 
 ###
-GET http://localhost:3000/api/products/compareById/144801
+GET http://localhost:3000/api/products/compareById/44112
 
 ###
 GET http://localhost:3000/api/jobs/attPrices
