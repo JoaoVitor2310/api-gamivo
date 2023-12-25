@@ -21,16 +21,19 @@ const attPrices = async (req, res) => {
                 'Authorization': `Bearer ${token}`
             },
         });
-        const myGames = response1.data; // Substituir pelo array dos jogos disponíveis na gamivo
+        const myProductIds = response1.data;
         
-        
-        const response2 = await axios.get(`${nossaURL}/api/products/compareAll`, {
+        const response2 = await axios.post(`${nossaURL}/api/products/compareAll`, {myProductIds}, {
             headers: {
                 'Authorization': `Bearer ${token}`
             },
             
         });
-      res.json(myGames);
+
+        
+
+    //   res.json(myProductIds);
+      res.json(response2.data);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Erro ao consultar a nossa API.' });

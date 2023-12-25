@@ -32,11 +32,17 @@ GET http://localhost:3000/api/products/productsList
 ###
 GET http://localhost:3000/api/products/productIds
 
-###
-GET http://localhost:3000/api/products/compareAll
+### O número do meio que é o jogo impossível
+    #"myProductIds": [31004, 1622240, 142477]
+POST http://localhost:3000/api/products/compareAll
+Content-Type: application/json
+
+{
+    "myProductIds": 
+}
 
 ###
-GET http://localhost:3000/api/products/compareById/44112
+GET http://localhost:3000/api/products/compareById/162224
 
 ###
 GET http://localhost:3000/api/jobs/attPrices
@@ -48,3 +54,11 @@ GET http://localhost:3000/api/sheets/catchFromSheet
 #   "filePath": "./BestbuyTrue.xlsx",
 #   "sheetName": "Venda-Chave-Troca"
 # }
+
+###
+GET http://localhost:3000/api/products/productsBySlug
+Content-Type: application/json
+
+{
+    "gameName": "CRYPTARK EN Global"
+}

@@ -1,188 +1,212 @@
 const axios = require('axios');
 const url = process.env.URL;
 const token = process.env.TOKEN;
+const slugify = require('slugify');
 
 const productsList = async (req, res) => { // Penúltimo endpoint de products
-    // Lista os jogos que o usuário tem disponível? Agora estou na dúvida se é isso msm. Útil para ver os detalhes dos jogos
-    // Ainda não sei como pode ser útil para a gente
-    const { offset = 0, limit = 100 } = req.query;
+      // Lista os jogos que o usuário tem disponível? Agora estou na dúvida se é isso msm. Útil para ver os detalhes dos jogos
+      // Ainda não sei como pode ser útil para a gente
+      const { offset = 0, limit = 100 } = req.query;
 
-    // const offset = 100; // A partir de qual jogo vai mostrar
-    // const limit = 100; // Limit por página, não pode ser maior que 100
+      // const offset = 100; // A partir de qual jogo vai mostrar
+      // const limit = 100; // Limit por página, não pode ser maior que 100
 
-    try {
-          const response = await axios.get(`${url}/api/public/v1/products?offset=${offset}&limit=${limit}`, {
-                headers: {
-                      'Authorization': `Bearer ${token}`
-                      // 'Content-Type': 'application/json',
-                },
-          });
-          const quantidade = response.data.length;
-          console.log(quantidade);
-          res.json(response.data);
-    } catch (error) {
-          console.error(error);
-          res.status(500).json({ error: 'Erro ao consultar a API externa.' });
-    }
+      try {
+            const response = await axios.get(`${url}/api/public/v1/products?offset=${offset}&limit=${limit}`, {
+                  headers: {
+                        'Authorization': `Bearer ${token}`
+                        // 'Content-Type': 'application/json',
+                  },
+            });
+            const quantidade = response.data.length;
+            console.log(quantidade);
+            res.json(response.data);
+      } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Erro ao consultar a API externa.' });
+      }
 }
 
 const productIds = async (req, res) => {
-    // Lista os jogos que estão/tiveram a venda, podem ter jogos com o status 0 pelo visto.
-    let { offset = 100, limit = 100 } = req.query;
+      // Lista os jogos que estão/tiveram a venda, podem ter jogos com o status 0 pelo visto.
+      let { offset = 100, limit = 100 } = req.query;
 
-    // offset: A partir de qual jogo vai mostrar
-    // limit: Limite por página, não pode ser maior que 100
-    let productIds = [], quantidade = 0, quatidadeTotal = 0, isDone = false, totalAtivos = 0, totalInativos = 0;
-    while (!isDone) {
-          try {
-                const response = await axios.get(`${url}/api/public/v1/offers?offset=${offset}&limit=${limit}`, {
-                      headers: {
-                            'Authorization': `Bearer ${token}`
-                      },
-                });
-                quantidade = response.data.length;
-                quatidadeTotal += response.data.length;
+      // offset: A partir de qual jogo vai mostrar
+      // limit: Limite por página, não pode ser maior que 100
+      let productIds = [], quantidade = 0, quatidadeTotal = 0, isDone = false, totalAtivos = 0, totalInativos = 0;
+      while (!isDone) {
+            try {
+                  const response = await axios.get(`${url}/api/public/v1/offers?offset=${offset}&limit=${limit}`, {
+                        headers: {
+                              'Authorization': `Bearer ${token}`
+                        },
+                  });
+                  quantidade = response.data.length;
+                  quatidadeTotal += response.data.length;
 
-                if (response.data.length == 0) {
-                      console.log(`Ativos: ${totalAtivos}; Inativos: ${totalInativos}`);
-                      console.log(`Acabou!`);
-                      res.json(productIds);
-                      isDone = true;
-                      return;
-                }
+                  if (response.data.length == 0) {
+                        console.log(`Ativos: ${totalAtivos}; Inativos: ${totalInativos}`);
+                        console.log(`Acabou!`);
+                        res.json(productIds);
+                        isDone = true;
+                        return;
+                  }
 
-                for (var i = 0; i < response.data.length; i++) {
-                      var productId = response.data[i].product_id;
+                  for (var i = 0; i < response.data.length; i++) {
+                        var productId = response.data[i].product_id;
 
-                      response.data[i].status == 1 ? totalAtivos += 1 : totalInativos += 1;
+                        response.data[i].status == 1 ? totalAtivos += 1 : totalInativos += 1;
 
-                      console.log(`porductId: ${productId}`);
-                      productIds.push(productId);
-                }
-                offset += 100;
-                console.log(`Offset: ${offset}`);
-          } catch (error) {
-                console.error(error);
-                res.status(500).json({ error: 'Erro ao consultar a API externa.' });
-          }
-    }
+                        console.log(`productId: ${productId}`);
+                        productIds.push(productId);
+                  }
+                  offset += 100;
+                  console.log(`Offset: ${offset}`);
+            } catch (error) {
+                  console.error(error);
+                  res.status(500).json({ error: 'Erro ao consultar a API externa.' });
+            }
+      }
 }
 
 const compareAll = async (req, res) => {
-    // Comparar o preço dos concorrentes daquele jogo e descobrir qual é o menor preço
+      // Comparar o preço dos concorrentes daquele jogo e descobrir qual é o menor preço
 
-    //  Passo a passo
-    // Definir o productId do jogo em questão
-    // Procurar por outras pessoas vendendo aquele msm jogo
-    // Descobrir qual é o menor preço que ele está sendo vendido
+      //  Passo a passo
+      // Definir o productId do jogo em questão
+      // Procurar por outras pessoas vendendo aquele msm jogo
+      // Descobrir qual é o menor preço que ele está sendo vendido
 
-    // Definir o productId do jogo em questão
-    const myGames = [1, 2, 3]; // Substituir pelo array dos jogos disponíveis na gamivo
+      const { myProductIds } = req.body;
 
-    for (let i = 0; i < myGames.length; i++) {
-          try {
-                // Procurar por outras pessoas vendendo aquele msm jogo
-                const response = await axios.get(`${url}/api/public/v1/products/${myGames[i]}/offers`, {
-                      headers: {
-                            'Authorization': `Bearer ${token}`
-                      },
-                });
-                // console.log(slugify(response.data.product_name))
-                // res.json(response.data); // Check
-
-                // Descobrir qual é o menor preço que ele está sendo vendido
-                let menorPreco = Number.MAX_SAFE_INTEGER; // Define um preço alto para depois ser substituído pelos menores preços de verdade
-
-                if (response.data.length == 0) {
-                      console.log(`Você é o único vendedor do productId: ${myGames[i]}`);
-                } else {
-                      for (const produto of response.data) {
-                            // Obtém o preço de varejo do produto
-                            const precoAtual = produto.retail_price;
-
-                            if (precoAtual < menorPreco) {
-                                  menorPreco = precoAtual;
-                            }
-                      }
-                      console.log(`Menor preço do productId: ${myGames[i]} é: ${menorPreco}`);
-                }
-
-                // Erros
-                //entre 63879 e 35660(pelo array, é o 141433) dá erro ao consultar a API possivelmente pelo array estar desatualizado com a lista de jogos disponíveis para venda(já vendeu algum daqueles jogos)
-
-                //Tarefas:
-                // Descobrir como aquele array gigante com os jogos que o usuário tem é formado(como conseguir os productId dos nossos jogos)
-                // Descobrir como buscar os dados da planilha e utilizar nos endpoints
-                // Colocar chaves de teste a venda para testar como funciona a venda
-
-                // Ideias futuras: 
-                // Ver se vale a pena vender o jogo 1 centavo mais barato, comparando esse preço com a tabela de custos
-                // Definir o limite de preço, para não abaixar muito, isso é até melhor que a ideia de cima
-                // Definir o tempo que a api irá ficar checando se ainda está como o melhor preço
-                // Calculo do limite de preço deve ser: custo do jogo + taxa da gamivo + lucro mínimo, aí na hr de listar 1 centavo mais barato, o novo preço tem que ser maior do que o preço mínimo.
+      let bestPrices = [], impossibleGames = [];
 
 
-          } catch (error) {
-                console.error(error);
-                res.status(500).json({ error: 'Erro ao consultar a API externa.' });
-          }
+      for (let i = 0; i < myProductIds.length; i++) {
+            try {
+                  // Procurar por outras pessoas vendendo aquele msm jogo
+                  var response = await axios.get(`${url}/api/public/v1/products/${myProductIds[i]}/offers`, {
+                        headers: {
+                              'Authorization': `Bearer ${token}`
+                        },
+                  });
 
-    }
+                  // Descobrir qual é o menor preço que ele está sendo vendido
+                  let menorPreco = Number.MAX_SAFE_INTEGER; // Define um preço alto para depois ser substituído pelos menores preços de verdade
+                  if (response.data.length == 0) {
+                        console.log(`Você é o único vendedor do productId: ${myProductIds[i]}`);
+                  } else {
+                        for (const produto of response.data) {
+                              // Obtém o preço de varejo do produto
+                              const precoAtual = produto.retail_price;
 
-    // produto 71215 - offer 2499645 - Iron Sea: Lost Land DLC EN/DE/RU Global - verde
-    // produto 33680 - offer 33680 - The King's Bird EN/DE/FR/RU/ZH/ES Global - laranja
+                              if (precoAtual < menorPreco) {
+                                    menorPreco = precoAtual;
+                              }
+                        }
+                        console.log(`Menor preço do productId: ${myProductIds[i]} é: ${menorPreco}`);
+                        bestPrices.push(menorPreco);
+                  }
+
+                  //             // Erros
+                  //             //entre 63879 e 35660(pelo array, é o 141433) dá erro ao consultar a API possivelmente pelo array estar desatualizado com a lista de jogos disponíveis para venda(já vendeu algum daqueles jogos)
+
+                  //             //Tarefas:
+                  //             // Descobrir como aquele array gigante com os jogos que o usuário tem é formado(como conseguir os productId dos nossos jogos)
+                  //             // Descobrir como buscar os dados da planilha e utilizar nos endpoints
+                  //             // Colocar chaves de teste a venda para testar como funciona a venda
+
+                  //             // Ideias futuras: 
+                  //             // Ver se vale a pena vender o jogo 1 centavo mais barato, comparando esse preço com a tabela de custos
+                  //             // Definir o limite de preço, para não abaixar muito, isso é até melhor que a ideia de cima
+                  //             // Definir o tempo que a api irá ficar checando se ainda está como o melhor preço
+                  //             // Calculo do limite de preço deve ser: custo do jogo + taxa da gamivo + lucro mínimo, aí na hr de listar 1 centavo mais barato, o novo preço tem que ser maior do que o preço mínimo.
+
+
+            } catch (error) {
+                  if (error.response.status == 404 || error.response.status == 403) {
+                        impossibleGames.push(myProductIds[i]);
+                  } else {
+                        console.error(error);
+                        res.status(500).json({ error: 'Erro ao consultar a API externa.' });
+                  }
+            }
+
+      }
+      console.log(`Esses são os ids dos jogos impossíveis: ${impossibleGames}`);
+      console.log(`Quantidade de jogos impossíveis: ${impossibleGames.length}`);
+      res.json(bestPrices);
 }
 
 const compareById = async (req, res) => {
-    // Comparar o preço dos concorrentes pelo id do jogo e descobrir qual é o menor preço
+      // Comparar o preço dos concorrentes pelo id do jogo e descobrir qual é o menor preço
 
-    //  Passo a passo
-    // Definir o productId do jogo em questão
-    // Procurar por outras pessoas vendendo aquele msm jogo
-    // Descobrir qual é o menor preço que ele está sendo vendido
+      //  Passo a passo
+      // Definir o productId do jogo em questão
+      // Procurar por outras pessoas vendendo aquele msm jogo
+      // Descobrir qual é o menor preço que ele está sendo vendido
 
-    // Definir o productId do jogo em questão
-    const { id } = req.params; // O jogo está sendo recebido pelo id nos params
+      // Definir o productId do jogo em questão
+      const { id } = req.params; // O jogo está sendo recebido pelo id nos params
 
-    try {
-          // Procurar por outras pessoas vendendo aquele msm jogo
-          const response = await axios.get(`${url}/api/public/v1/products/${id}/offers`, {
-                headers: {
-                      'Authorization': `Bearer ${token}`
-                },
-          });
-          // console.log(slugify(response.data.product_name))
-          res.json(response.data); // Check
+      try {
+            // Procurar por outras pessoas vendendo aquele msm jogo
+            const response = await axios.get(`${url}/api/public/v1/products/${id}/offers`, {
+                  headers: {
+                        'Authorization': `Bearer ${token}`
+                  },
+            });
+            // console.log(slugify(response.data.product_name))
+            res.json(response.data); // Check
 
-          // Descobrir qual é o menor preço que ele está sendo vendido
-          let menorPreco = Number.MAX_SAFE_INTEGER; // Define um preço alto para depois ser substituído pelos menores preços de verdade
+            // Descobrir qual é o menor preço que ele está sendo vendido
+            let menorPreco = Number.MAX_SAFE_INTEGER; // Define um preço alto para depois ser substituído pelos menores preços de verdade
 
-          for (const produto of response.data) {
-                // Obtém o preço de varejo do produto
-                const precoAtual = produto.retail_price;
+            for (const produto of response.data) {
+                  // Obtém o preço de varejo do produto
+                  const precoAtual = produto.retail_price;
 
-                if (precoAtual < menorPreco) {
-                      menorPreco = precoAtual;
-                }
-          }
+                  if (precoAtual < menorPreco) {
+                        menorPreco = precoAtual;
+                  }
+            }
 
-          console.log('Menor preço de varejo:', menorPreco);
-
-
-
-    } catch (error) {
-          console.error(error);
-          res.status(500).json({ error: 'Erro ao consultar a API externa.' });
-    }
+            console.log('Menor preço de varejo:', menorPreco);
+      } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Erro ao consultar a API externa.' });
+      }
 
 
-    // produto 71215 - offer 2499645 - Iron Sea: Lost Land DLC EN/DE/RU Global - verde
-    // produto 33680 - offer 33680 - The King's Bird EN/DE/FR/RU/ZH/ES Global - laranja
+      // produto 71215 - offer 2499645 - Iron Sea: Lost Land DLC EN/DE/RU Global - verde
+      // produto 33680 - offer 33680 - The King's Bird EN/DE/FR/RU/ZH/ES Global - laranja
 }
 
+const productsBySlug = async (req, res) => {
+      const { gameName } = req.body;
+
+      // ${sluggedName}
+
+      try {
+            const sluggedName = slugify(gameName);
+            console.log(sluggedName);
+            const response = await axios.get(`${url}/api/public/v1/products/by-slug/${sluggedName}`, {
+                  headers: {
+                        'Authorization': `Bearer ${token}`
+                  },
+            });
+            res.json(response.data);
+      } catch (error) {
+            // console.error(error);
+            res.status(500).json({ error: 'Erro ao consultar a API externa.' });
+      }
+}
+
+
 module.exports = {
-    productsList,
-    productIds,
-    compareAll,
-    compareById
+      productsList,
+      productIds,
+      compareAll,
+      compareById,
+      productsBySlug
 }
