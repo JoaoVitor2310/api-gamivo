@@ -22,22 +22,42 @@ const attPrices = async (req, res) => {
             },
         });
         const myProductIds = response1.data;
-        
-        const response2 = await axios.post(`${nossaURL}/api/products/compareAll`, {myProductIds}, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-            
-        });
+        // const myProductIds = [31004, 1622240, 142477];
 
-        
+        //Comparar tudo de uma vez
+        // const response2 = await axios.post(`${nossaURL}/api/products/compareAll`, {myProductIds}, {
+        //     headers: {
+        //         'Authorization': `Bearer ${token}`
+        //     },
+        // });
 
-    //   res.json(myProductIds);
-      res.json(response2.data);
+
+        //Comparar somente um
+        for (let id of myProductIds) {
+            try {
+                const response2 = await axios.get(`${nossaURL}/api/products/compareById/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                }); // Recebe um objeto com o id do jogo, e o menor preço que pode ser: o preço mesmo, -1 para jogos impossíveis e -2 para jogos sem concorrentes
+                console.log(response2.data);
+            }
+            catch (error) {
+                // console.error(error);
+                res.status(500).json({ error: 'Erro ao consultar a nossa API /compareById.' });
+            }
+        }
+
+
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Erro ao consultar a nossa API.' });
+        res.status(500).json({ error: 'Erro ao consultar a nossa API /productIds.' });
     }
+
+
+    //   res.json(myProductIds);
+    res.json('attPrices');
+
 
     //Tarefas:
     // Colocar chaves de teste a venda para testar como funciona a venda

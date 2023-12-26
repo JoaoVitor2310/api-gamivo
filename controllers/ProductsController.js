@@ -148,7 +148,6 @@ const compareById = async (req, res) => {
 
       // Definir o productId do jogo em questão
       const { id } = req.params; // O jogo está sendo recebido pelo id nos params
-
       try {
             // Procurar por outras pessoas vendendo aquele msm jogo
             const response = await axios.get(`${url}/api/public/v1/products/${id}/offers`, {
@@ -156,36 +155,37 @@ const compareById = async (req, res) => {
                         'Authorization': `Bearer ${token}`
                   },
             });
-            // console.log(slugify(response.data.product_name))
-            res.json(response.data); // Check
-
+            
             // Descobrir qual é o menor preço que ele está sendo vendido
             let menorPreco = Number.MAX_SAFE_INTEGER; // Define um preço alto para depois ser substituído pelos menores preços de verdade
-
+            
             for (const produto of response.data) {
                   // Obtém o preço de varejo do produto
                   const precoAtual = produto.retail_price;
-
+                  
                   if (precoAtual < menorPreco) {
                         menorPreco = precoAtual;
                   }
             }
-
-            console.log('Menor preço de varejo:', menorPreco);
-      } catch (error) {
-            console.error(error);
-            res.status(500).json({ error: 'Erro ao consultar a API externa.' });
+            if (response.data.length == 0) {
+                  console.log(`Você é o único vendedor do productId: ${id}`)
+                  res.json({id, menorPreco: -2}); // Sem concorrentes
+            }else{
+                  res.json({id, menorPreco});
+            }
+      } catch (error) { // Aqui está o erro
+            if (error.response.status == 404 || error.response.status == 403) {
+                  console.log(`Id: ${id} é de um jogo 'impossível'`)
+                  res.json({id, menorPreco: -1});
+            } else {
+                  console.error(error);
+                  res.status(500).json({ error: 'Erro ao consultar a API externa.' });
+            }     
       }
-
-
-      // produto 71215 - offer 2499645 - Iron Sea: Lost Land DLC EN/DE/RU Global - verde
-      // produto 33680 - offer 33680 - The King's Bird EN/DE/FR/RU/ZH/ES Global - laranja
 }
 
 const productsBySlug = async (req, res) => {
       const { gameName } = req.body;
-
-      // ${sluggedName}
 
       try {
             const sluggedName = slugify(gameName);

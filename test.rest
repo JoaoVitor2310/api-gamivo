@@ -38,11 +38,11 @@ POST http://localhost:3000/api/products/compareAll
 Content-Type: application/json
 
 {
-    "myProductIds": 
+    "myProductIds": [31004, 1622240, 142477]
 }
 
 ###
-GET http://localhost:3000/api/products/compareById/162224
+GET http://localhost:3000/api/products/compareById/45565
 
 ###
 GET http://localhost:3000/api/jobs/attPrices

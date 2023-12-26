@@ -90,6 +90,24 @@ const searchOfferById = async (req, res) => {
     }
 }
 
+// const editOffer = async (req, res) => {
+//     // Procura a oferta pelo id
+//     const { id } = req.params;
+//     try {
+//           const response = await axios.get(`${url}/api/public/v1/offers/${id}`, {
+//                 headers: {
+//                       'Authorization': `Bearer ${token}`
+//                 },
+//           });
+//           // console.log(response.data.product_name);
+//       //     console.log(slugify(response.data.product_name))
+//           res.json(response.data);
+//     } catch (error) {
+//           console.error(error);
+//           res.status(500).json({ error: 'Erro ao consultar a API externa.' });
+//     }
+// }
+
 module.exports = {
     offerList,
     createOffer,
