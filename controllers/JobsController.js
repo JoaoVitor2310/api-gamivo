@@ -31,7 +31,6 @@ const attPrices = async (req, res) => {
         //     },
         // });
 
-
         //Comparar somente um
         for (let id of myProductIds) {
             try {

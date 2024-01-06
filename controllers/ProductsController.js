@@ -42,10 +42,10 @@ const productIds = async (req, res) => {
                         },
                   });
                   quantidade = response.data.length;
-                  quatidadeTotal += response.data.length;
+                  quatidadeTotal += response.data.length; // Quantidade total de ofertas
 
-                  if (response.data.length == 0) {
-                        console.log(`Ativos: ${totalAtivos}; Inativos: ${totalInativos}`);
+                  if (response.data.length == 0) { // Aqui que termina o loop do while
+                        console.log(`Ativos: ${totalAtivos}; Inativos: ${totalInativos}`); // Anúncios ativos e não ativos
                         console.log(`Acabou!`);
                         res.json(productIds);
                         isDone = true;
@@ -59,6 +59,13 @@ const productIds = async (req, res) => {
 
                         console.log(`productId: ${productId}`);
                         productIds.push(productId);
+
+
+                        //Lógica para saber o nome dos jogos impossíveis, ids descobertos pela rota compareById
+                        // if(productId === 74797 || productId === 78621 || productId === 26374 || productId === 1622240){ // ids de jogos impossíveis
+                        //      console.log(`Jogo impossível detectado: ${JSON.stringify(response.data[i])}`);
+                        // }
+
                   }
                   offset += 100;
                   console.log(`Offset: ${offset}`);
@@ -148,6 +155,7 @@ const compareById = async (req, res) => {
 
       // Definir o productId do jogo em questão
       const { id } = req.params; // O jogo está sendo recebido pelo id nos params
+      let qtdCandango = 0;
       try {
             // Procurar por outras pessoas vendendo aquele msm jogo
             const response = await axios.get(`${url}/api/public/v1/products/${id}/offers`, {
@@ -156,31 +164,70 @@ const compareById = async (req, res) => {
                   },
             });
             
-            // Descobrir qual é o menor preço que ele está sendo vendido
-            let menorPreco = Number.MAX_SAFE_INTEGER; // Define um preço alto para depois ser substituído pelos menores preços de verdade
+            // res.json(response.data); // Só descomentar caso queira ver as informações dos vendedores do jogo
+            // return;
             
+            // Descobrir qual é o menor preço que ele está sendo vendido
+            let menorPrecoSemCandango = Number.MAX_SAFE_INTEGER; // 
+            let menorPrecoTotal = Number.MAX_SAFE_INTEGER; // Define um preço alto para depois ser substituído pelos menores preços de verdade
+            let menorPreco;
+
             for (const produto of response.data) {
+                  let ignoreSeller = false; // True = candango, false = vendedor experiente
                   // Obtém o preço de varejo do produto
-                  const precoAtual = produto.retail_price;
+
+                  const { retail_price: precoAtual, completed_orders: quantidadeVendas } = produto; // Preço de varejo e quantidade de vendas do concorrente
+
+                  if (quantidadeVendas < 4000) {
+                        ignoreSeller = true;
+                        qtdCandango++;
+                  }
+                  // if(!ignoreSeller){
+                  //       console.log(`TOP: ${quantidadeVendas}`)
+                  //       if (precoAtual < menorPreco) {
+                  //             menorPreco = precoAtual;
+                  //       }
+                  // }else{
+                  //       qtdCandango++;
+                  //       console.log(`IGNORADO: ${quantidadeVendas}`)
+                  // }
+
+                  if (precoAtual < menorPrecoTotal) {
+                        menorPrecoTotal = precoAtual; // Define um preço independente se é candango ou não
+                  }
                   
-                  if (precoAtual < menorPreco) {
-                        menorPreco = precoAtual;
+                  if(precoAtual < menorPrecoSemCandango){
+                        if(!ignoreSeller){ // Se não for candango
+                              menorPrecoSemCandango = precoAtual; // Define um preço considerando SOMENTE vendedores experientes
+                        }
                   }
             }
+            
+            if(qtdCandango >= 3){
+                  console.log(`qtdCandango: ${qtdCandango} do id: ${id} `); // Considera o preço menor independente
+                  menorPreco = menorPrecoTotal;
+            }else{ 
+                  menorPreco = menorPrecoSemCandango; // Considera SOMENTE os preços dos vendedores experientes
+            }
+
             if (response.data.length == 0) {
                   console.log(`Você é o único vendedor do productId: ${id}`)
-                  res.json({id, menorPreco: -2}); // Sem concorrentes
-            }else{
-                  res.json({id, menorPreco});
+                  res.json({ id, menorPreco: -2 }); // Sem concorrentes
+            } else {
+                  console.log(`menorPrecoTotal: ${menorPrecoTotal}, menorPrecoSemCandango: ${menorPrecoSemCandango}`)
+                  
+                  res.json({ id, menorPreco });
             }
-      } catch (error) { // Aqui está o erro
+            // Checar se nós já somos o menor preço
+      } catch (error) {
+            // console.log('Esse é o error.response: ' + error);
             if (error.response.status == 404 || error.response.status == 403) {
                   console.log(`Id: ${id} é de um jogo 'impossível'`)
-                  res.json({id, menorPreco: -1});
+                  res.json({ id, menorPreco: -1 });
             } else {
                   console.error(error);
                   res.status(500).json({ error: 'Erro ao consultar a API externa.' });
-            }     
+            }
       }
 }
 
@@ -202,6 +249,7 @@ const productsBySlug = async (req, res) => {
       }
 }
 
+//Rota pra retornar o nome do jogo qnd enviar o id
 
 module.exports = {
       productsList,

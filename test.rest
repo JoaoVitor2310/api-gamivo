@@ -5,8 +5,11 @@ GET http://localhost:3000/api/accounts/accountData
 ###
 GET http://localhost:3000/api/accounts/calculateFinalPrice
 
-###
+### Offerlist normal
 GET http://localhost:3000/api/offers/offersList?offset=4400&limit=100
+
+### Offerlist com loop p descobrir jogos impossíveis
+GET http://localhost:3000/api/offers/offersList?ids=74797,78621,26374
 
 ###
 POST http://localhost:3000/api/offers/createOffer
@@ -41,8 +44,8 @@ Content-Type: application/json
     "myProductIds": [31004, 1622240, 142477]
 }
 
-###
-GET http://localhost:3000/api/products/compareById/45565
+### Dá p descobrir o nome do jogo enviando o id para essa rota
+GET http://localhost:3000/api/products/compareById/46535
 
 ###
 GET http://localhost:3000/api/jobs/attPrices
