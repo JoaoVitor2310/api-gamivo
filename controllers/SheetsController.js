@@ -5,6 +5,22 @@ const nossaURL = process.env.NOSSAURL;
 const ExcelJS = require('exceljs');
 const path = require('path');
 
+const determineStatus = (corArgb, vendidoPor) => {
+  if (vendidoPor !== 'Gamivo') {
+    return 'N/A';
+  }
+
+  if (corArgb === 'FFFF0000') {
+    return 'Sim'; // Vermelho
+  } else if (corArgb === 'FFFFFF00') {
+    return 'Posto a Venda'; // Amarelo
+  } else if (corArgb === 'FF000000') {
+    return 'Ainda não posto a venda'; // Preto
+  }
+
+  return 'N/A';
+};
+
 const catchFromSheet = (req, res) => {
   const filePath = '../BestbuyTrue.xlsx';
   const sheetName = 'Venda-Chave-Troca';
@@ -14,68 +30,55 @@ const catchFromSheet = (req, res) => {
   workbook.xlsx.readFile(path.resolve(__dirname, filePath)).then(() => {
     const sheet = workbook.getWorksheet(sheetName);
     const data = [];
-    let rowCount = 0; // Contador de linhas preenchidas elegíveis
+    let rowCount = 0;
 
-    // Número da coluna que você deseja percorrer (no exemplo, coluna 'C')
-    const columnNumber = 3; // 3 representa a coluna 'C'
-
-    // Percorre cada linha na planilha
     sheet.eachRow((row, rowNumber) => {
-      // Obtém a célula na coluna desejada
-      const jogoHBCell = row.getCell(columnNumber);
+      const jogoHBCell = row.getCell(3); // Corrigi o número da coluna para corresponder à sua lógica
 
-      // Verifica se a célula não está vazia
       if (jogoHBCell.value) {
-        // Obtém a cor do preenchimento da célula 'Jogo HB'
         const corCelula = jogoHBCell.fill ? jogoHBCell.fill.fgColor : null;
 
-        // Verifica se a cor é vermelha, amarela ou preta
         if (corCelula && (corCelula.argb === 'FFFF0000' || corCelula.argb === 'FFFFFF00' || corCelula.argb === 'FF000000')) {
-          const coluna1Cell = row.getCell(1); // Coluna 'A' - "Colunas 1"
-          const vendidoPorCell = row.getCell(5); // Coluna 'E' - "Vendido Por"
+          const coluna1Cell = row.getCell(1);
+          const vendidoPorCell = row.getCell(5);
+          const chaveRecebidaCell = row.getCell(2);
+          const valorSimulacaoCell = row.getCell(9);
+          const valorPagoCell = row.getCell(12);
 
-          // Verifica se 'Colunas 1' contém "RK" e 'Vendido Por' é "Gamivo"
           if (coluna1Cell.value.includes('RK') && vendidoPorCell.value === 'Gamivo') {
-            console.log(`Cor ${
-              corCelula.argb === 'FFFF0000' ? 'vermelha' :
-              corCelula.argb === 'FFFFFF00' ? 'amarela' :
-              corCelula.argb === 'FF000000' ? 'preta' : ''
-            } encontrada na célula 'Jogo HB' na linha ${rowNumber}. Jogo HB: ${jogoHBCell.value}`);
-
-            const chaveRecebidaCell = row.getCell(2); // Coluna 'B' - "Chave Recebida"
-            const valorSimulacaoCell = row.getCell(9); // Coluna 'I' - "V. R. (Simulação)"
-            const valorPagoCell = row.getCell(12); // Coluna 'L' - "Valor Pago"
-
             const valorSimulacao = valorSimulacaoCell.value instanceof Object ? valorSimulacaoCell.value.result : parseFloat(valorSimulacaoCell.value);
             const valorPago = parseFloat(valorPagoCell.value);
 
-            // Faz as comparações e imprime as informações desejadas
-            if (valorSimulacao >= 1.7 * valorPago) {
-              console.log(`Valor de Simulação é pelo menos 70% maior que Valor Pago: ${valorSimulacao} >= ${1.7 * valorPago}`);
-            }
-
-            if (valorSimulacao >= 1.5 * valorPago) {
-              console.log(`Valor de Simulação é pelo menos 50% maior que Valor Pago: ${valorSimulacao} >= ${1.5 * valorPago}`);
-            }
-
             const jogo = {
               'Chave Recebida': chaveRecebidaCell.value,
-              'Vendido': determineStatus(corCelula.argb),
+              'Vendido': determineStatus(corCelula.argb, vendidoPorCell.value),
               'Jogo HB': jogoHBCell.value,
               'Vendido Por': vendidoPorCell.value,
               'Valor G2A': row.getCell(6).value,
               'V.R. (Real)': valorSimulacao,
-              'V. R. (Simulação)': null,  // Agora estamos usando 'V.R. (Real)' para a simulação
+              'V. R. (Simulação)': row.getCell(9).value,
               'Jogo Entregue': row.getCell(11).value,
               'Valor Pago': valorPago,
               'Valor Mín. Venda': row.getCell(13).value,
               'Receita (R$)': row.getCell(18).value.result,
+              'Messages': [] // Adiciona a propriedade 'Messages' para armazenar mensagens
             };
+
+            if (valorSimulacao >= 1.7 * valorPago) {
+              jogo.Messages.push(`Valor de Simulação é pelo menos 70% maior que Valor Pago: ${valorSimulacao.toFixed(4)} >= ${(1.7 * valorPago).toFixed(4)}`);
+            } else {
+              jogo.Messages.push(`Valor recebido pós taxamento **NÃO É** pelo menos 70% maior que o valor pago pelo jogo: ${valorSimulacao.toFixed(4)} < ${(1.7 * valorPago).toFixed(4)}`);
+            }
+
+            if (valorSimulacao >= 1.5 * valorPago) {
+              jogo.Messages.push(`Valor de Simulação é pelo menos 50% maior que Valor Pago: ${valorSimulacao.toFixed(4)} >= ${(1.5 * valorPago).toFixed(4)}`);
+            } else {
+              jogo.Messages.push(`Valor recebido pós taxamento **NÃO É** pelo menos 50% maior que o valor pago pelo jogo: ${valorSimulacao.toFixed(4)} < ${(1.5 * valorPago).toFixed(4)}`);
+            }
 
             data.push(jogo);
             rowCount++;
           }
-          console.log('\n');
         }
       }
     });
@@ -85,23 +88,10 @@ const catchFromSheet = (req, res) => {
       res.json(data);
     } else {
       console.log('Nenhuma célula preenchida elegível encontrada.');
-      res.json({ message: 'Nenhuma célula preenchida elegível encontrada.' });
+      res.json({ message: 'Nenhuma célula preenchida elegível encontrada.', messages: [] });
     }
   });
 };
-
-function determineStatus(corCelula) {
-  // Determina o status com base na cor da célula
-  if (corCelula === 'FFFF0000') {
-    return 'Sim'; // Vermelho
-  } else if (corCelula === 'FFFFFF00') {
-    return 'Posto a venda'; // Amarelo
-  } else if (corCelula === 'FF000000') {
-    return 'Ainda não posto a venda'; // Preto
-  } else {
-    return ''; // Outros casos
-  }
-}
 
 module.exports = {
   catchFromSheet,
