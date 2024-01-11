@@ -106,13 +106,7 @@ const compareAll = async (req, res) => {
                       }
                       console.log(`Menor preço do productId: ${myGames[i]} é: ${menorPreco}`);
                 }
-
-                // Erros
-                //entre 63879 e 35660(pelo array, é o 141433) dá erro ao consultar a API possivelmente pelo array estar desatualizado com a lista de jogos disponíveis para venda(já vendeu algum daqueles jogos)
-
-                //Tarefas:
-                // Descobrir como aquele array gigante com os jogos que o usuário tem é formado(como conseguir os productId dos nossos jogos)
-                // Descobrir como buscar os dados da planilha e utilizar nos endpoints
+                
                 // Colocar chaves de teste a venda para testar como funciona a venda
 
                 // Ideias futuras: 
