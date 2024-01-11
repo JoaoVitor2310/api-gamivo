@@ -11,14 +11,14 @@ const offerList = async (req, res) => {
 
       try {
             // Offerlist normal
-                const response = await axios.get(`${url}/api/public/v1/offers?offset=${offset}&limit=${limit}`, {
-                      headers: {
-                            'Authorization': `Bearer ${token}`
-                      },
-                });
-                const quantidade = response.data.length;
-                console.log(quantidade);
-                res.json(response.data);
+            const response = await axios.get(`${url}/api/public/v1/offers?offset=${offset}&limit=${limit}`, {
+                  headers: {
+                        'Authorization': `Bearer ${token}`
+                  },
+            });
+            const quantidade = response.data.length;
+            console.log(quantidade);
+            res.json(response.data);
       } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Erro ao consultar a API externa.' });
@@ -89,24 +89,30 @@ const searchOfferById = async (req, res) => {
       }
 }
 
-// const editOffer = async (req, res) => {
-//     // Procura a oferta pelo id
-//     const { id } = req.params;
-//     try {
-//           const response = await axios.get(`${url}/api/public/v1/offers/${id}`, {
-//                 headers: {
-//                       'Authorization': `Bearer ${token}`
-//                 },
-//           });
-//           // console.log(response.data.product_name);
-//       //     console.log(slugify(response.data.product_name))
-// Registrar o horário que foi editado
-//           res.json(response.data);
-//     } catch (error) {
-//           console.error(error);
-//           res.status(500).json({ error: 'Erro ao consultar a API externa.' });
-//     }
-// }
+const editOffer = async (req, res) => {
+      // Passo a passo
+      // Recebe o offerId, limite da api, ...
+      // Edita pelo offerId
+      // Edita os dados
+      // Armazena a hora que foi editado
+
+      const { offerId } = req.params;
+      try {
+            const response = await axios.get(`${url}/api/public/v1/offers/${id}`, {
+                  headers: {
+                        'Authorization': `Bearer ${token}`
+                  },
+            });
+          // console.log(response.data.product_name);
+      //     console.log(slugify(response.data.product_name))
+      
+      // Registrar o horário que foi editado
+            res.json(response.data);
+      } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Erro ao consultar a API externa.' });
+      }
+}
 
 module.exports = {
       offerList,
