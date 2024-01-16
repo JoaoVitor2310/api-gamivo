@@ -16,9 +16,7 @@ const determineStatus = (corArgb, vendidoPor) => {
     return 'False'; // Amarelo
   } else if (corArgb === 'FF000000') {
     return 'Ainda não posto a venda'; // Preto
-  } else if (corArgb === 'FF00FF00') {
-    return ''; // Verde claro
-  } 
+  }
 
   return 'Nenhuma cor encontrada';
 };
@@ -47,7 +45,6 @@ const catchFromSheet = (req, res) => {
     let redCount = 0;
     let yellowCount = 0;
     let blackCount = 0;
-    let greenCount = 0;
 
     sheet.eachRow((row, rowNumber) => {
       const jogoHBCell = row.getCell(3);
@@ -55,7 +52,7 @@ const catchFromSheet = (req, res) => {
       if (jogoHBCell.value) {
         const corCelula = jogoHBCell.fill ? jogoHBCell.fill.fgColor : null;
 
-        if (corCelula && (corCelula.argb === 'FFFF0000' || corCelula.argb === 'FFFFFF00' || corCelula.argb === 'FF00FF00' || corCelula.argb === 'FF000000')) {
+        if (corCelula && (corCelula.argb === 'FFFF0000' || corCelula.argb === 'FFFFFF00' || corCelula.argb === 'FF000000')) {
           const coluna1Cell = row.getCell(1);
           const vendidoPorCell = row.getCell(5);
           const chaveRecebidaCell = row.getCell(2);
@@ -106,8 +103,6 @@ const catchFromSheet = (req, res) => {
               yellowCount++;
             } else if (corCelula.argb === 'FF000000') {
               blackCount++;
-            } else if (corCelula.argb === 'FF00FF00') {
-              greenCount++;
             }
 
             if (valorSimulacao >= 1.7 * valorPago) {
@@ -135,7 +130,6 @@ const catchFromSheet = (req, res) => {
       'Quantidade de jogos vendidos pela Gamivo:': redCount,
       'Quantidade de jogos da Gamivo ainda não postos a venda:': yellowCount,
       'Quantidade de jogos que ainda não foram vendidos pela Gamivo': blackCount,
-      'Quantidade de jogos prontos para vender': greenCount,
       'Jogos': data
     };
 
@@ -144,7 +138,6 @@ const catchFromSheet = (req, res) => {
       console.log(`Quantidade de jogos vendidos pela Gamivo: ${redCount}`);
       console.log(`Quantidade de jogos da Gamivo ainda não postos a venda: ${yellowCount}`);
       console.log(`Quantidade de jogos que ainda não foram vendidos pela Gamivo: ${blackCount}`);
-      console.log(`Quantidade de jogos prontos para vender: ${greenCount}`);
       res.json(response);
     } else {
       console.log('Nenhuma jogo ofertado pela Gamivo encontrado.');
@@ -152,7 +145,86 @@ const catchFromSheet = (req, res) => {
     }
   });
 };
+const colorsAnalyse  = (req, res) => {   const axios = require('axios');
+const token = process.env.TOKEN;
+const url = process.env.URL;
+const nossaURL = process.env.NOSSAURL;
+const path = require('path');
 
+
+const ExcelJS = require('exceljs');
+
+const determineStatus = (corArgb, vendidoPor) => {
+  if (vendidoPor !== 'Gamivo') {
+    return 'N/A';
+  }
+
+  if (corArgb === 'FFFF0000') {
+    return 'True'; // Vermelho
+  } else if (corArgb === 'FFFFFF00') {
+    return 'False'; // Amarelo
+  } else if (corArgb === 'FF000000') {
+    return 'Ainda não posto a venda'; // Preto
+  } else if (corArgb === 'FF00FF00') {
+    return ''; // Verde claro
+  }
+
+  return 'Nenhuma cor encontrada';
+};
+
+const extractFormulaResult = (cell) => {
+  if (cell.formula) {
+    try {
+      return cell.value.result;
+    } catch (error) {
+      return 'Erro ao avaliar a fórmula';
+    }
+  }
+  return cell.value;
+};
+
+const analyzeColors = (sheet) => {
+  let rowCount = 0;
+  let redCount = 0;
+  let yellowCount = 0;
+  let blackCount = 0;
+  let greenCount = 0;
+
+  const data = [];
+
+  sheet.eachRow((row, rowNumber) => {
+    const jogoHBCell = row.getCell(3);
+
+    if (jogoHBCell.value) {
+      const corCelula = jogoHBCell.fill ? jogoHBCell.fill.fgColor : null;
+
+      if (corCelula && (corCelula.argb === 'FFFF0000' || corCelula.argb === 'FFFFFF00' || corCelula.argb === 'FF00FF00' || corCelula.argb === 'FF000000')) {
+        if (corCelula.argb === 'FFFF0000') {
+          redCount++;
+        } else if (corCelula.argb === 'FFFFFF00') {
+          yellowCount++;
+        } else if (corCelula.argb === 'FF000000') {
+          blackCount++;
+        } else if (corCelula.argb === 'FF00FF00') {
+          greenCount++;
+        }
+      }
+    }
+  });
+
+  const response = {
+    'Quantidade de jogos ofertados pela Gamivo': rowCount,
+    'Quantidade de jogos vendidos pela Gamivo:': redCount,
+    'Quantidade de jogos da Gamivo ainda não postos a venda:': yellowCount,
+    'Quantidade de jogos que ainda não foram vendidos pela Gamivo': blackCount,
+    'Quantidade de jogos prontos para vender': greenCount,
+    'Jogos': data,
+  };
+
+  return response;
+};
+  }
 module.exports = {
   catchFromSheet,
+  colorsAnalyse,
 };
