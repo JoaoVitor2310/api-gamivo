@@ -8,6 +8,6 @@ const { catchFromSheet, colorsAnalyse} = require('../controllers/SheetsControlle
 
 //Routes
 router.get('/catchFromSheet', catchFromSheet);
-router.get('/catchFromSheet', colorsAnalyse);
+router.get('/colorsAnalyse', colorsAnalyse);
 
 module.exports = router;
