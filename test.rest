@@ -8,6 +8,12 @@ GET http://localhost:3000/api/accounts/calculateFinalPrice
 ### Offerlist normal
 GET http://localhost:3000/api/offers/offersList?offset=4400&limit=100
 
+### returnOfferId
+GET http://localhost:3000/api/offers/returnOfferId/663
+
+### OfferKeys
+GET http://localhost:3000/api/offers/offerKeys/2988904
+
 ### Offerlist com loop p descobrir jogos impossíveis
 GET http://localhost:3000/api/offers/offersList?ids=74797,78621,26374
 
@@ -45,7 +51,7 @@ Content-Type: application/json
 }
 
 ### Dá p descobrir o nome do jogo enviando o id para essa rota
-GET http://localhost:3000/api/products/compareById/46535
+GET http://localhost:3000/api/products/compareById/663
 
 ###
 GET http://localhost:3000/api/jobs/attPrices
@@ -60,6 +66,14 @@ GET http://localhost:3000/api/sheets/catchFromSheet
 
 ###
 GET http://localhost:3000/api/products/productsBySlug
+Content-Type: application/json
+
+{
+    "gameName": "CRYPTARK EN Global"
+}
+
+###
+GET http://localhost:3000/api/offers/editOffer
 Content-Type: application/json
 
 {

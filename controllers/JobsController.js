@@ -9,10 +9,12 @@ const attPrices = async (req, res) => {
     // Recebe os jogos que estão/tiveram a venda, compara para saber se tem o melhor preço e edita a oferta
 
     // Passo a passo
-    // 1- Receber a lista das nossas ofertas(/productIds). ROTA PROPRIA
-    // 2 - Comparar com os vendedores concorrentes daquele jogo(/compareAll). ROTA PROPRIA
-    // 3 - Editar oferta para inserir o preço atualizado. ROTA PROPRIA EM PROGRESSO(fazer isso com key de teste)
-    // NO MOMENTO: passo 1
+    // 1- Receber a lista das nossas ofertas(/productIds). FEITO
+    // 2 - Comparar com os vendedores concorrentes daquele jogo(/compareAll). FEITO
+    // 3 - Buscar o offerId daquele jogo. FEITO
+    // 4 - Buscar as keys daquele jogo. FEITO
+    // 5 - Buscar os dados daquele jogo na planilha com base na key. EM PROGRESSO
+    // 6 - Editar oferta para inserir o preço atualizado. 
 
     // Definir o productId do jogo em questão
     try {
@@ -32,22 +34,51 @@ const attPrices = async (req, res) => {
         // });
 
         //Comparar somente um
-        for (let id of myProductIds) {
+        for (let productId of myProductIds) {
             try {
-                const response2 = await axios.get(`${nossaURL}/api/products/compareById/${id}`, {
+                const response2 = await axios.get(`${nossaURL}/api/products/compareById/${productId}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     },
                 }); // Recebe um objeto com o id do jogo, e o menor preço que pode ser: o preço mesmo, -1 para jogos impossíveis e -2 para jogos sem concorrentes
                 console.log(response2.data);
+
+                if (response2.data.menorPreco > 0) {
+                    try {
+                        const response3 = await axios.get(`${nossaURL}/api/offers/returnOfferId/${productId}`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            },
+                        }); // Recebe um objeto com o id do jogo, e o menor preço que pode ser: o preço mesmo, -1 para jogos impossíveis e -2 para jogos sem concorrentes
+                        if(response3.data > 0){
+                            console.log(`Id da oferta: ${response3.data}`);
+                            const offerId = response3.data;
+
+                            try {
+                                const response4 = await axios.get(`${nossaURL}/api/offers/offerKeys/${offerId}`, {
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`
+                                    },
+                                });
+                                console.log(`Keys: ${response4.data}`); 
+                            } catch (error) {
+                                console.error(error);
+                                res.status(500).json({ error: 'Erro ao consultar a nossa API /offerKeys.' });
+                            }
+
+
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        res.status(500).json({ error: 'Erro ao consultar a nossa API /returnOfferId.' });
+                    }
+                }
             }
             catch (error) {
-                // console.error(error);
+                console.error(error);
                 res.status(500).json({ error: 'Erro ao consultar a nossa API /compareById.' });
             }
         }
-
-
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Erro ao consultar a nossa API /productIds.' });

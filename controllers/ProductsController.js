@@ -54,18 +54,17 @@ const productIds = async (req, res) => {
 
                   for (var i = 0; i < response.data.length; i++) {
                         var productId = response.data[i].product_id;
+                        var status = response.data[i].status;
 
-                        response.data[i].status == 1 ? totalAtivos += 1 : totalInativos += 1;
+                        // response.data[i].status == 1 ? totalAtivos += 1 : totalInativos += 1;
 
-                        console.log(`productId: ${productId}`);
-                        productIds.push(productId);
-
-
-                        //Lógica para saber o nome dos jogos impossíveis, ids descobertos pela rota compareById
-                        // if(productId === 74797 || productId === 78621 || productId === 26374 || productId === 1622240){ // ids de jogos impossíveis
-                        //      console.log(`Jogo impossível detectado: ${JSON.stringify(response.data[i])}`);
-                        // }
-
+                        if(status == 1){
+                              console.log(`productId: ${productId}`);
+                              productIds.push(productId);
+                              totalAtivos += 1
+                        }else{
+                              totalInativos += 1
+                        }
                   }
                   offset += 100;
                   console.log(`Offset: ${offset}`);

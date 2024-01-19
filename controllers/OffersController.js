@@ -96,18 +96,79 @@ const editOffer = async (req, res) => {
       // Edita os dados
       // Armazena a hora que foi editado
 
-      const { offerId } = req.params;
+      const { offerId, minPrice } = req.params;
       try {
-            const response = await axios.get(`${url}/api/public/v1/offers/${id}`, {
+            const response = await axios.put(`${url}/api/public/v1/offers/${offerId}`, {
                   headers: {
                         'Authorization': `Bearer ${token}`
                   },
             });
-          // console.log(response.data.product_name);
-      //     console.log(slugify(response.data.product_name))
-      
-      // Registrar o horário que foi editado
+            // console.log(response.data.product_name);
+            // console.log(slugify(response.data.product_name))
+
+            // Registrar o horário que foi editado
             res.json(response.data);
+      } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Erro ao consultar a API externa.' });
+      }
+}
+const returnOfferId = async (req, res) => {
+      // Retornar o offerId daquele productId
+
+      const { productId } = req.params; // O jogo está sendo recebido pelo id nos params
+      try {
+            const response = await axios.get(`${url}/api/public/v1/products/${productId}/offers`, {
+                  headers: {
+                        'Authorization': `Bearer ${token}`
+                  },
+            });
+
+            // console.log(response.data);
+            // res.json(response.data);
+
+            var objetoEncontrado = response.data.find(function (objeto) { // Procura pelo objeto que é vendido por nós, e retorna a offerId
+                  return objeto.seller_name === 'Bestbuy86'; // Nome do vendedor tem que ser da nossa loja
+            });
+
+            if(!objetoEncontrado){ // Se nós temos o produto mas a oferta não está ativa(status = 0)
+                  res.json(-3); // offerId é retornada como -3 para identificar que não estamos vendendo aquele jogo atualmente
+                  return;
+            }
+
+            res.json(objetoEncontrado.id); // offerId é retornada
+            return;
+      } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Erro ao consultar a API externa.' });
+      }
+}
+
+const offerKeys = async (req, res) => {
+      // Passo a passo
+      // Recebe o offerId, limite da api, ...
+      // Edita pelo offerId
+      // Edita os dados
+      // Armazena a hora que foi editado
+
+      const { offerId } = req.params;
+      const limit = 250, offset = 0;
+      try {
+            const response = await axios.get(`${url}/api/public/v1/offers/${offerId}/keys/active/${offset}/${limit}`, {
+                  headers: {
+                        'Authorization': `Bearer ${token}`
+                  },
+            });
+            let keys = [], count;
+            
+            count = response.data.count;
+
+            for(let i = 0; i < count; i++){
+                  keys.push(response.data.data[i].content);
+            };
+            // console.log(keys);
+
+            res.json(keys);
       } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Erro ao consultar a API externa.' });
@@ -118,5 +179,7 @@ module.exports = {
       offerList,
       createOffer,
       searchOfferById,
-
+      editOffer,
+      offerKeys,
+      returnOfferId
 }
