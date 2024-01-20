@@ -74,3 +74,5 @@ Content-Type: application/json
 {
     "gameName": "CRYPTARK EN Global"
 }
+###
+GET http://localhost:3000/api/sheets/dataKeysAnalyse/EYBQC-T6Q6D-7CD7D
