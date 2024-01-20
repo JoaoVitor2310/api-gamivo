@@ -9,42 +9,92 @@ const attPrices = async (req, res) => {
     // Recebe os jogos que estão/tiveram a venda, compara para saber se tem o melhor preço e edita a oferta
 
     // Passo a passo
-    // 1- Receber a lista das nossas ofertas(/productIds). ROTA PROPRIA
-    // 2 - Comparar com os vendedores concorrentes daquele jogo(/compareAll). ROTA PROPRIA
-    // 3 - Editar oferta para inserir o preço atualizado. ROTA PROPRIA EM PROGRESSO(fazer isso com key de teste)
-    // NO MOMENTO: passo 1
+    // 1- Receber a lista das nossas ofertas(/productIds). FEITO
+    // 2 - Comparar com os vendedores concorrentes daquele jogo(/compareAll). FEITO
+    // 3 - Buscar o offerId daquele jogo. FEITO
+    // 4 - Buscar as keys daquele jogo. FEITO
+    // 5 - Buscar os dados daquele jogo na planilha com base na key. EM PROGRESSO
+    // 6 - Editar oferta para inserir o preço atualizado. 
 
     // Definir o productId do jogo em questão
-    const myGames = [1, 2, 3]; // Substituir pelo array dos jogos disponíveis na gamivo
-
     try {
-        const response = await axios.get(`${nossaURL}/productIds}`, {
+        const response1 = await axios.get(`${nossaURL}/api/products/productIds`, {
             headers: {
-                  'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`
             },
-      });
-      res.json(response.data);
+        });
+        const myProductIds = response1.data;
+        // const myProductIds = [31004, 1622240, 142477];
+
+        //Comparar tudo de uma vez
+        // const response2 = await axios.post(`${nossaURL}/api/products/compareAll`, {myProductIds}, {
+        //     headers: {
+        //         'Authorization': `Bearer ${token}`
+        //     },
+        // });
+
+        //Comparar somente um
+        for (let productId of myProductIds) {
+            try {
+                const response2 = await axios.get(`${nossaURL}/api/products/compareById/${productId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                }); // Recebe um objeto com o id do jogo, e o menor preço que pode ser: o preço mesmo, -1 para jogos impossíveis e -2 para jogos sem concorrentes
+                console.log(response2.data);
+
+                if (response2.data.menorPreco > 0) {
+                    try {
+                        const response3 = await axios.get(`${nossaURL}/api/offers/returnOfferId/${productId}`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            },
+                        }); // Recebe um objeto com o id do jogo, e o menor preço que pode ser: o preço mesmo, -1 para jogos impossíveis e -2 para jogos sem concorrentes
+                        if(response3.data > 0){
+                            console.log(`Id da oferta: ${response3.data}`);
+                            const offerId = response3.data;
+
+                            try {
+                                const response4 = await axios.get(`${nossaURL}/api/offers/offerKeys/${offerId}`, {
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`
+                                    },
+                                });
+                                console.log(`Keys: ${response4.data}`); 
+                            } catch (error) {
+                                console.error(error);
+                                res.status(500).json({ error: 'Erro ao consultar a nossa API /offerKeys.' });
+                            }
+
+
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        res.status(500).json({ error: 'Erro ao consultar a nossa API /returnOfferId.' });
+                    }
+                }
+            }
+            catch (error) {
+                console.error(error);
+                res.status(500).json({ error: 'Erro ao consultar a nossa API /compareById.' });
+            }
+        }
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Erro ao consultar a nossa API.' });
+        res.status(500).json({ error: 'Erro ao consultar a nossa API /productIds.' });
     }
 
-    // Erros
-    //entre 63879 e 35660(pelo array, é o 141433) dá erro ao consultar a API possivelmente pelo array estar desatualizado com a lista de jogos disponíveis para venda(já vendeu algum daqueles jogos)
+
+    //   res.json(myProductIds);
+    res.json('attPrices');
+
 
     //Tarefas:
-    // Descobrir como aquele array gigante com os jogos que o usuário tem é formado(como conseguir os productId dos nossos jogos)
-    // Descobrir como buscar os dados da planilha e utilizar nos endpoints
     // Colocar chaves de teste a venda para testar como funciona a venda
 
     // Ideias futuras: 
-    // Ver se vale a pena vender o jogo 1 centavo mais barato, comparando esse preço com a tabela de custos
-    // Definir o limite de preço, para não abaixar muito, isso é até melhor que a ideia de cima
     // Definir o tempo que a api irá ficar checando se ainda está como o melhor preço
     // Calculo do limite de preço deve ser: custo do jogo + taxa da gamivo + lucro mínimo, aí na hr de listar 1 centavo mais barato, o novo preço tem que ser maior do que o preço mínimo.
-
-    // produto 71215 - offer 2499645 - Iron Sea: Lost Land DLC EN/DE/RU Global - verde
-    // produto 33680 - offer 33680 - The King's Bird EN/DE/FR/RU/ZH/ES Global - laranja
 }
 
 module.exports = {
