@@ -169,6 +169,7 @@ const offerKeys = async (req, res) => {
             // console.log(keys);
 
             res.json(keys);
+            // res.json( response.data);
       } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Erro ao consultar a API externa.' });

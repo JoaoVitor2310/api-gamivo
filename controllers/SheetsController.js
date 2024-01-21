@@ -88,10 +88,7 @@ sheet.eachRow((row, rowNumber) => {
 
 const dataKeysAnalyse = (req, res) => {
   try {
-    const key = req.params.key;
-
-    console.log('Endpoint dataKeysAnalyse chamado!');
-    console.log('Chave recebida:', key);
+    const {key} = req.params;
 
     const filePath = path.resolve(__dirname, '../testenaoaguentomais.xlsx');
     const sheetName = 'Venda-Chave-Troca';
@@ -126,10 +123,8 @@ const dataKeysAnalyse = (req, res) => {
           'Jogo HB': foundRow.getCell(3).value,
           'Observação': foundRow.getCell(4).value,
           'Vendido Por': foundRow.getCell(5).value,
-          'Valor G2A': foundRow.getCell(6).value,
-          'Colunas2': {
-            result: parseFloat(extractFormulaResult(foundRow.getCell(7)).toFixed(2)),
-          },
+          'Valor G2A': parseFloat(foundRow.getCell(6).value.toFixed(2)),
+          'Colunas2': parseFloat(extractFormulaResult(foundRow.getCell(7)).toFixed(2)), 
           'V.R. (Real)': parseFloat(extractFormulaResult(foundRow.getCell(8)).toFixed(2)),
           'V. R. (Simulação)': parseFloat(extractFormulaResult(foundRow.getCell(9)).toFixed(2)),
           'Chave Entregue': foundRow.getCell(10).value,
@@ -148,10 +143,11 @@ const dataKeysAnalyse = (req, res) => {
           'E-mail cliente': foundRow.getCell(23).value,
           'Comissão': extractFormulaResult(foundRow.getCell(24)),
         };
-        res.json({ data });
+        res.json(data);
       } else {
-        console.log('Chave não encontrada na planilha');
-        res.status(404).json({ error: 'Chave não encontrada na planilha' });
+        // console.log('Chave não encontrada na planilha');
+        // res.status(404).json({ error: 'Chave não encontrada na planilha' });
+        res.status(200).json({ error: 'Chave não encontrada na planilha' });
       }
     });
   } catch (error) {

@@ -16,7 +16,10 @@ const attPrices = async (req, res) => {
     // 5 - Buscar os dados daquele jogo na planilha com base na key. EM PROGRESSO
     // 6 - Editar oferta para inserir o preço atualizado. 
 
-    // Definir o productId do jogo em questão
+
+    const hora1 = new Date().toLocaleTimeString();
+    let keysInXLSX = [];
+
     try {
         const response1 = await axios.get(`${nossaURL}/api/products/productIds`, {
             headers: {
@@ -50,7 +53,7 @@ const attPrices = async (req, res) => {
                                 'Authorization': `Bearer ${token}`
                             },
                         }); // Recebe um objeto com o id do jogo, e o menor preço que pode ser: o preço mesmo, -1 para jogos impossíveis e -2 para jogos sem concorrentes
-                        if(response3.data > 0){
+                        if (response3.data > 0) {
                             console.log(`Id da oferta: ${response3.data}`);
                             const offerId = response3.data;
 
@@ -60,13 +63,33 @@ const attPrices = async (req, res) => {
                                         'Authorization': `Bearer ${token}`
                                     },
                                 });
-                                console.log(`Keys: ${response4.data}`); 
+                                let keys = response4.data;
+                                // console.log(`Keys: ${keys}`); 
+
+                                for (let key of keys) {
+
+                                    if (key.startsWith("https") || key == "Z6LCN-84FCF-7M393" || "66LBE-PIPR3-E2IG5 / 5JWA4-VPMTY-C5JM6 / 7F6FM-2VJ02-2Z0XI / 6ZEQG-IY990-82PHD / 6BL7F-PITBV-8F47C / 78DDZ-T20TQ-VLV4Q / 78F4G-CZ7E3-67GJT / 6CMK9-TIA4K-GDKMB / 6GFZQ-FRRR6-ZA6MQ / 620IE-NEJGV-JGG80") { // A chave é um link(steam, gog), iremos ter que tratar para procurar dps || Z6LCN-84FCF-7M393 não tem valor pago
+                                        console.log(`Dados da key: Chave não encontrada na planilha`);
+                                        // Tratar qnd for o nome do jogo(provavelmente cagada de alguém), oferta 2831584
+                                    } else {
+                                        const response5 = await axios.get(`${nossaURL}/api/sheets/dataKeysAnalyse/${key}`, {
+                                            headers: {
+                                                'Authorization': `Bearer ${token}`
+                                            },
+                                        });
+                                        const keyData = response5.data;
+                                        if (keyData.error) {
+                                            console.log(`Erro: ${keyData.error}`);
+                                        } else {
+                                            keysInXLSX.push(key);
+                                            console.log(`keysInXLSX++`);
+                                        }
+                                    }
+                                }
                             } catch (error) {
                                 console.error(error);
                                 res.status(500).json({ error: 'Erro ao consultar a nossa API /offerKeys.' });
                             }
-
-
                         }
                     } catch (error) {
                         console.error(error);
@@ -79,15 +102,13 @@ const attPrices = async (req, res) => {
                 res.status(500).json({ error: 'Erro ao consultar a nossa API /compareById.' });
             }
         }
+        const hora2 = new Date().toLocaleTimeString();
+        console.log(`Horário de início: ${hora1}, horário de término: ${hora2}`);
+        res.json(keysInXLSX);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Erro ao consultar a nossa API /productIds.' });
     }
-
-
-    //   res.json(myProductIds);
-    res.json('attPrices');
-
 
     //Tarefas:
     // Colocar chaves de teste a venda para testar como funciona a venda
