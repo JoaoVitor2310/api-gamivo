@@ -91,14 +91,27 @@ const searchOfferById = async (req, res) => {
 
 const editOffer = async (req, res) => {
       // Passo a passo
-      // Recebe o offerId, limite da api, ...
+      // Recebe o offerId, valorPago 
+      // Define o limite da api
       // Edita pelo offerId
       // Edita os dados
       // Armazena a hora que foi editado
 
-      const { offerId, minPrice } = req.params;
+      // const { offerId, valorPago } = req.params;
+      const offerId = 2651675, key = "C6ANC-5CF53-RWI2H", valorPago = 0; // Valores teste
+      
+      const body = {
+            "wholesale_mode": 0, // Somente varejo
+            "seller_price": 0, // Preço de venda
+            "tier_one_seller_price": 0, // N precisa
+            "tier_two_seller_price": 0,
+            "status": 0,
+            "keys": 0,
+            "is_preorder": true
+      };
+
       try {
-            const response = await axios.put(`${url}/api/public/v1/offers/${offerId}`, {
+            const response = await axios.put(`${url}/api/public/v1/offers/${offerId}`, body, {
                   headers: {
                         'Authorization': `Bearer ${token}`
                   },
@@ -131,7 +144,7 @@ const returnOfferId = async (req, res) => {
                   return objeto.seller_name === 'Bestbuy86'; // Nome do vendedor tem que ser da nossa loja
             });
 
-            if(!objetoEncontrado){ // Se nós temos o produto mas a oferta não está ativa(status = 0)
+            if (!objetoEncontrado) { // Se nós temos o produto mas a oferta não está ativa(status = 0)
                   res.json(-3); // offerId é retornada como -3 para identificar que não estamos vendendo aquele jogo atualmente
                   return;
             }
@@ -160,10 +173,10 @@ const offerKeys = async (req, res) => {
                   },
             });
             let keys = [], count;
-            
+
             count = response.data.count;
 
-            for(let i = 0; i < count; i++){
+            for (let i = 0; i < count; i++) {
                   keys.push(response.data.data[i].content);
             };
             // console.log(keys);

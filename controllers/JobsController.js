@@ -3,7 +3,7 @@
 const axios = require('axios');
 const token = process.env.TOKEN;
 const url = process.env.URL;
-const nossaURL = process.env.NOSSAURL
+const nossaURL = process.env.NOSSAURL;
 
 
 
@@ -22,7 +22,7 @@ const attPrices = async (req, res) => {
     const hora1 = new Date().toLocaleTimeString();
     
     try {
-        var keysInXLSX = [];
+        var keysInXLSX = [], keysWithHttps = [];
         const response1 = await axios.get(`${nossaURL}/api/products/productIds`, {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -64,8 +64,9 @@ const attPrices = async (req, res) => {
 
                                 for (let key of keys) {
                                     // let key = "CB0WV-IPMNP-GFKHC";
-                                    if (key.startsWith("https") ||
-                                     key == "Z6LCN-84FCF-7M393" ||
+                                    
+                                    if (key.startsWith("https") || // Keys que são links(steam, gog, etc)
+                                     key == "Z6LCN-84FCF-7M393" || // Key está na planilha, mas não possui o Valor Pago
                                      key == "66LBE-PIPR3-E2IG5 / 5JWA4-VPMTY-C5JM6 / 7F6FM-2VJ02-2Z0XI / 6ZEQG-IY990-82PHD / 6BL7F-PITBV-8F47C / 78DDZ-T20TQ-VLV4Q / 78F4G-CZ7E3-67GJT / 6CMK9-TIA4K-GDKMB / 6GFZQ-FRRR6-ZA6MQ / 620IE-NEJGV-JGG80" ||
                                      key == "Demetrios The BIG Cynical Adventure - Base Game: K5QB5-PM2G2-KFER6 / Original Soundtrack DLC: YCGXM-NINMD-JIB3B / Artbook DLC: 7EE9T-CKK5K-DYN4A" ||
                                      key == "QG6PT-KCNNL-2BA0Y / P4C6Z-RK47A-0IYQG" ||
@@ -88,7 +89,21 @@ const attPrices = async (req, res) => {
                                      key == "7NQPF-KWG34-C29J4 Worms Rumble / 55X5H-TYMVE-M5IHI Legends Pack DLC Global / 3J723-JNRZW-PDN4D New Challengers Pack DLC Global" ||
                                      key == "N9XDA-4NELN-LZM45/JYHKN-8QM2I-56ZGI/A79RT-JGLY6-QQRMX/7X2K8-K3VQJ-J2G3Y") {
                                         console.log(`Dados da key: Chave não encontrada na planilha`);
-                                    } else {
+                                    }
+                                    if(key.startsWith("https")){
+                                        keysWithHttps.push(key);
+                                    }
+
+
+                                    if (key.includes("/") || key == "Z6LCN-84FCF-7M393"){
+                                        console.log(`Dados da key: Chave não encontrada na planilha`);
+                                        
+                                    }
+                                    else if(key.startsWith("https")){
+                                        keysWithHttps.push(key);
+                                        console.log(`keysWithHttps++`);
+                                    }
+                                    else {
                                         const response5 = await axios.get(`${nossaURL}/api/sheets/dataKeysAnalyse/${key}`, {
                                             headers: {
                                                 'Authorization': `Bearer ${token}`
@@ -121,7 +136,7 @@ const attPrices = async (req, res) => {
         }
         const hora2 = new Date().toLocaleTimeString();
         console.log(`Horário de início: ${hora1}, horário de término: ${hora2}`);
-        res.json(keysInXLSX);
+        res.json(keysWithHttps);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Erro ao consultar a nossa API /productIds.' });

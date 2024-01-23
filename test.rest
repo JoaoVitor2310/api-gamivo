@@ -12,7 +12,7 @@ GET http://localhost:3000/api/offers/offersList?offset=4400&limit=100
 GET http://localhost:3000/api/offers/returnOfferId/27297
 
 ### OfferKeys
-GET http://localhost:3000/api/offers/offerKeys/2978377 
+GET http://localhost:3000/api/offers/offerKeys/2831584 
 
 ### Offerlist com loop p descobrir jogos impossíveis
 GET http://localhost:3000/api/offers/offersList?ids=74797,78621,26374
@@ -32,8 +32,8 @@ Content-Type: application/json
     "is_preorder": false
 }
 
-###
-GET http://localhost:3000/api/offers/search/2928078
+### searchOfferById
+GET http://localhost:3000/api/offers/search/2831584
 
 ###
 GET http://localhost:3000/api/products/productsList
@@ -75,4 +75,4 @@ Content-Type: application/json
     "gameName": "CRYPTARK EN Global"
 }
 ###
-GET http://localhost:3000/api/sheets/dataKeysAnalyse/CB0WV-IPMNP-GFKHC
+GET http://localhost:3000/api/sheets/dataKeysAnalyse/C6ANC-5CF53-RWI2H
