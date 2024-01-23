@@ -54,18 +54,17 @@ const productIds = async (req, res) => {
 
                   for (var i = 0; i < response.data.length; i++) {
                         var productId = response.data[i].product_id;
+                        var status = response.data[i].status;
 
-                        response.data[i].status == 1 ? totalAtivos += 1 : totalInativos += 1;
+                        // response.data[i].status == 1 ? totalAtivos += 1 : totalInativos += 1;
 
-                        console.log(`productId: ${productId}`);
-                        productIds.push(productId);
-
-
-                        //Lógica para saber o nome dos jogos impossíveis, ids descobertos pela rota compareById
-                        // if(productId === 74797 || productId === 78621 || productId === 26374 || productId === 1622240){ // ids de jogos impossíveis
-                        //      console.log(`Jogo impossível detectado: ${JSON.stringify(response.data[i])}`);
-                        // }
-
+                        if(status == 1){
+                              console.log(`productId: ${productId}`);
+                              productIds.push(productId);
+                              totalAtivos += 1
+                        }else{
+                              totalInativos += 1
+                        }
                   }
                   offset += 100;
                   console.log(`Offset: ${offset}`);
@@ -114,21 +113,6 @@ const compareAll = async (req, res) => {
                         console.log(`Menor preço do productId: ${myProductIds[i]} é: ${menorPreco}`);
                         bestPrices.push(menorPreco);
                   }
-
-                  //             // Erros
-                  //             //entre 63879 e 35660(pelo array, é o 141433) dá erro ao consultar a API possivelmente pelo array estar desatualizado com a lista de jogos disponíveis para venda(já vendeu algum daqueles jogos)
-
-                  //             //Tarefas:
-                  //             // Descobrir como aquele array gigante com os jogos que o usuário tem é formado(como conseguir os productId dos nossos jogos)
-                  //             // Descobrir como buscar os dados da planilha e utilizar nos endpoints
-                  //             // Colocar chaves de teste a venda para testar como funciona a venda
-
-                  //             // Ideias futuras: 
-                  //             // Ver se vale a pena vender o jogo 1 centavo mais barato, comparando esse preço com a tabela de custos
-                  //             // Definir o limite de preço, para não abaixar muito, isso é até melhor que a ideia de cima
-                  //             // Definir o tempo que a api irá ficar checando se ainda está como o melhor preço
-                  //             // Calculo do limite de preço deve ser: custo do jogo + taxa da gamivo + lucro mínimo, aí na hr de listar 1 centavo mais barato, o novo preço tem que ser maior do que o preço mínimo.
-
 
             } catch (error) {
                   if (error.response.status == 404 || error.response.status == 403) {
@@ -248,8 +232,6 @@ const productsBySlug = async (req, res) => {
             res.status(500).json({ error: 'Erro ao consultar a API externa.' });
       }
 }
-
-//Rota pra retornar o nome do jogo qnd enviar o id
 
 module.exports = {
       productsList,
