@@ -17,7 +17,7 @@ const extractFormulaResult = (cell) => {
 };
 
 const catchFromSheet = (req, res) => {
-  const filePath = path.resolve(__dirname, '../testenaoaguentomais.xlsx');
+  const filePath = path.resolve(__dirname, '../sheets/testenaoaguentomais.xlsx');
   const sheetName = 'Venda-Chave-Troca';
   const workbook = new ExcelJS.Workbook();
 
@@ -88,9 +88,9 @@ sheet.eachRow((row, rowNumber) => {
 
 const dataKeysAnalyse = (req, res) => {
   try {
-    const {key} = req.params;
+    const { key } = req.params;
 
-    const filePath = path.resolve(__dirname, '../testenaoaguentomais.xlsx');
+    const filePath = path.resolve(__dirname, '../sheets/testenaoaguentomais.xlsx');
     const sheetName = 'Venda-Chave-Troca';
     const workbook = new ExcelJS.Workbook();
 
@@ -117,6 +117,9 @@ const dataKeysAnalyse = (req, res) => {
         // Ajuste para garantir que o lucro esteja entre -100% e 100%
         const lucroFormatado = lucro !== null ? parseFloat(Math.max(-100, Math.min(100, lucro)).toFixed(2)) : null;
 
+        const valorPagoCell = foundRow.getCell(12);
+        const valorPago = valorPagoCell ? parseFloat(valorPagoCell.value.toFixed(2)) : 0;
+
         const data = {
           'Tipo de Chave': foundRow.getCell(1).value,
           'Chave Recebida': foundRow.getCell(2).value,
@@ -124,12 +127,12 @@ const dataKeysAnalyse = (req, res) => {
           'Observação': foundRow.getCell(4).value,
           'Vendido Por': foundRow.getCell(5).value,
           'Valor G2A': parseFloat(foundRow.getCell(6).value.toFixed(2)),
-          'Colunas2': parseFloat(extractFormulaResult(foundRow.getCell(7)).toFixed(2)), 
+          'Colunas2': parseFloat(extractFormulaResult(foundRow.getCell(7)).toFixed(2)),
           'V.R. (Real)': parseFloat(extractFormulaResult(foundRow.getCell(8)).toFixed(2)),
           'V. R. (Simulação)': parseFloat(extractFormulaResult(foundRow.getCell(9)).toFixed(2)),
           'Chave Entregue': foundRow.getCell(10).value,
           'Jogo Entregue': foundRow.getCell(11).value,
-          'Valor Pago': parseFloat(foundRow.getCell(12).value.toFixed(2)),
+          'Valor Pago': isNaN(valorPago) ? 0 : valorPago,
           'Vendido': foundRow.getCell(13).value,
           'Leilões/Mudanças de Preço': foundRow.getCell(14).value,
           'Qtd': foundRow.getCell(15).value,
