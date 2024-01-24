@@ -90,6 +90,12 @@ const dataKeysAnalyse = (req, res) => {
   try {
     const { key } = req.params;
 
+
+    // verifica se tem a string barra na chave
+    if (key.includes('barra')) {
+      key = key.replace('barra', '/');
+    }
+
     const filePath = path.resolve(__dirname, '../sheets/testenaoaguentomais.xlsx');
     const sheetName = 'Venda-Chave-Troca';
     const workbook = new ExcelJS.Workbook();
