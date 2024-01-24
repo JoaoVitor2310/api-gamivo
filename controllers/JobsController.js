@@ -64,7 +64,10 @@ const attPrices = async (req, res) => {
 
                                 for (let key of keys) {
                                     // let key = "CB0WV-IPMNP-GFKHC";
-                                    
+
+                                    if (key.includes('/')) {
+                                        key = key.replace('/', 'barra');
+                                    }
                                     if (key.startsWith("https") || // Keys que são links(steam, gog, etc)
                                      key == "Z6LCN-84FCF-7M393" || // Key está na planilha, mas não possui o Valor Pago
                                      key == "66LBE-PIPR3-E2IG5 / 5JWA4-VPMTY-C5JM6 / 7F6FM-2VJ02-2Z0XI / 6ZEQG-IY990-82PHD / 6BL7F-PITBV-8F47C / 78DDZ-T20TQ-VLV4Q / 78F4G-CZ7E3-67GJT / 6CMK9-TIA4K-GDKMB / 6GFZQ-FRRR6-ZA6MQ / 620IE-NEJGV-JGG80" ||
