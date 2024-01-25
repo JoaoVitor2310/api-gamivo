@@ -89,35 +89,70 @@ const searchOfferById = async (req, res) => {
       }
 }
 
+// const editOffer = async (req, res) => {
+//       // Passo a passo
+//       // Recebe o offerId, valorPago, menorPreco, productId 
+//       // Define o limite da api
+//       // Edita pelo offerId
+//       // Edita os dados
+//       // Armazena a hora que foi editado
+
+//       // const { offerId, keys valorPago, productId, menorPreco } = req.body;
+//       // const offerId = 2651675, key = "C6ANC-5CF53-RWI2H", valorPago = 0; // Valores teste(nao utilizado)
+//       const offerId = 2687740, keys = ["XXXXX-XXXXX-XXXXX"], valorPago = 0.34, productId = 2881 , menorPreco = 0.91; // Valores teste(foca nesse)
+      
+//       // Logica p definir preço
+//       const limiteAPI = 0.12;
+//       const seller_price = menorPreco - 0.01;
+//       console.log(seller_price);
+
+//       const body = {
+//             "wholesale_mode": 0,
+//             "seller_price": seller_price,
+//       };
+      
+//       try {
+//             const response = await axios.put(`${url}/api/public/v1/offers/${offerId}`, body, {
+//                   headers: {
+//                         'Authorization': `Bearer ${token}`
+//                   },
+//             });
+
+//             // Registrar o horário que foi editado
+//             // if(1 + 1 = 2){
+
+//             // }
+
+//             res.json(response.data);
+//       } catch (error) {
+//             console.error(error);
+//             res.status(500).json({ error: 'Erro ao consultar a API externa.' });
+//       }
+// }
+
 const editOffer = async (req, res) => {
       // Passo a passo
-      // Recebe o offerId, valorPago 
+      // Recebe o offerId, valorPago, menorPreco, productId 
       // Define o limite da api
       // Edita pelo offerId
       // Edita os dados
       // Armazena a hora que foi editado
 
-      // const { offerId, valorPago } = req.params;
-      const offerId = 2651675, key = "C6ANC-5CF53-RWI2H", valorPago = 0; // Valores teste
-      
-      const body = {
-            "wholesale_mode": 0, // Somente varejo
-            "seller_price": 0, // Preço de venda
-            "tier_one_seller_price": 0, // N precisa
-            "tier_two_seller_price": 0,
-            "status": 0,
-            "keys": 0,
-            "is_preorder": true
-      };
+      const offerId = 2514907, menorPreco = 11; // Valores teste(foca nesse)
 
+      const seller_price = menorPreco - 0.01;
+
+      const body = {
+            "wholesale_mode": 0,
+            "seller_price": seller_price,
+      };
+      
       try {
             const response = await axios.put(`${url}/api/public/v1/offers/${offerId}`, body, {
                   headers: {
                         'Authorization': `Bearer ${token}`
                   },
             });
-            // console.log(response.data.product_name);
-            // console.log(slugify(response.data.product_name))
 
             // Registrar o horário que foi editado
             res.json(response.data);
@@ -126,6 +161,7 @@ const editOffer = async (req, res) => {
             res.status(500).json({ error: 'Erro ao consultar a API externa.' });
       }
 }
+
 const returnOfferId = async (req, res) => {
       // Retornar o offerId daquele productId
 

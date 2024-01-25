@@ -22,4 +22,4 @@ Content-Type: application/json
 }
 
 ### Dá p descobrir o nome do jogo enviando o id para essa rota
-GET http://localhost:3000/api/products/compareById/28715
+GET http://localhost:3000/api/products/compareById/45746               
