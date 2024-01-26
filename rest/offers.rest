@@ -2,7 +2,7 @@
 GET http://localhost:3000/api/offers/offersList?offset=4400&limit=100
 
 ### returnOfferId
-GET http://localhost:3000/api/offers/returnOfferId/27297
+GET http://localhost:3000/api/offers/returnOfferId/37305
 
 ### OfferKeys
 GET http://localhost:3000/api/offers/offerKeys/2506423 
@@ -25,16 +25,15 @@ Content-Type: application/json
     "is_preorder": false
 }
 
-### searchOfferById
-GET http://localhost:3000/api/offers/search/2506444
+### searchOfferById productId = 45746
+GET http://localhost:3000/api/offers/search/2504780
 
 ###
 PUT http://localhost:3000/api/offers/editOffer
-# Content-Type: application/json
+Content-Type: application/json
 
-# {
-#     "productId": 1,
-#     "offerId": 1,
-#     "key": 1,
-#     "valorPago": 1,
-# }
+{
+    "productId": 45746,
+    "menorPreco": 9.50,
+    "offerId": 2514907
+}
