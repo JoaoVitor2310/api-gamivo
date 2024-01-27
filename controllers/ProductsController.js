@@ -169,8 +169,8 @@ const compareById = async (req, res) => {
                   },
             });
 
-            res.json(response.data); // Só descomentar caso queira ver as informações dos vendedores do jogo
-            return;
+            // res.json(response.data); // Só descomentar caso queira ver as informações dos vendedores do jogo
+            // return;
 
             // Descobrir qual é o menor preço que ele está sendo vendido
             let menorPrecoSemCandango = Number.MAX_SAFE_INTEGER, menorPrecoComTaxa; // 
@@ -254,7 +254,7 @@ const compareById = async (req, res) => {
                         // }
 
                         // Calcula o novo preço sem a taxa, a gamivo irá adicionar as taxas dps, e o menorPreco será atingido
-                        menorPreco = menorPreco - 0.01;
+                        menorPreco = menorPreco - 0.02;
                         if (menorPreco < 4) {
                               menorPrecoSemTaxa = (menorPreco - taxaGamivoFixoMenorQue4) / (1 + taxaGamivoPorcentagemMenorQue4);
                         }

@@ -21,18 +21,18 @@ const attPrices = async (req, res) => {
     const hora1 = new Date().toLocaleTimeString();
 
     try {
-        var keysInXLSX = [], keysWithHttps = [];
+        var keysInXLSX = [], keysWithHttps = [], jogosAtualizados = [];
         const response1 = await axios.get(`${nossaURL}/api/products/productIds`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             },
         });
-        const myProductIds = response1.data;
-        // const myProductIds = [46876, 27297];
+        // const myProductIds = response1.data;
+        const myProductIds = [34229, 37305, 145315, 11913, 46142, 71930];
 
-        //Comparar somente um
+        //Comparar somente um por vez
         for (let productId of myProductIds) {
-            // let productId = 27297;
+            // let productId = 34229;
 
             try {
                 const response2 = await axios.get(`${nossaURL}/api/products/compareById/${productId}`, {
@@ -40,32 +40,31 @@ const attPrices = async (req, res) => {
                         'Authorization': `Bearer ${token}`
                     },
                 }); // Recebe um objeto com o id do jogo, e o menor preço que pode ser: o preço mesmo, -1 para jogos impossíveis e -2 para jogos sem concorrentes, -4 quando já for o melhor preço
+                // console.log(response2.data);
 
                 // const dataToEdit = response2.data;
-                // const dataToEdit = {
-                //     id: 37305,
-                //     menorPreco: 0.895,
-                //     offerId: 2504780
-                // };
-                // const dataToEdit = {
-                //     productId: 37305,
-                //     menorPreco: 0.895,
-                //     offerId: 2504780
-                // };
+
+                const dataToEdit = {
+                    productId: response2.data.id,
+                    menorPreco: response2.data.menorPreco,
+                    offerId: response2.data.offerId
+                };
                 // console.log(dataToEdit);
-                
-                console.log(response2.data);
-                // try {
-                //     const response3 = await axios.put(`${nossaURL}/api/offers/editOffer`, dataToEdit{
-                //         headers: {
-                //             'Authorization': `Bearer ${token}`
-                //         },
-                //     }); // Recebe um objeto com o id do jogo, e o menor preço que pode ser: o preço mesmo, -1 para jogos impossíveis e -2 para jogos sem concorrentes
-                //     console.log(response3.data);
-                // } catch (error) {
-                // console.error(error);
-                // res.status(500).json({ error: 'Erro ao consultar a nossa API /editOffer.' });
-                // }
+
+                try {
+                    const response3 = await axios.put(`${nossaURL}/api/offers/editOffer`, dataToEdit, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                    }); // Recebe um objeto com o id do jogo, e o menor preço que pode ser: o preço mesmo, -1 para jogos impossíveis e -2 para jogos sem concorrentes
+                    console.log(response3.data);
+                    if(response3.data > 0){
+                        jogosAtualizados.push(response3.data);
+                    }
+                } catch (error) {
+                    console.error(error);
+                    res.status(500).json({ error: 'Erro ao consultar a nossa API /editOffer.' });
+                }
 
             }
             catch (error) {
@@ -75,7 +74,7 @@ const attPrices = async (req, res) => {
         }
         const hora2 = new Date().toLocaleTimeString();
         console.log(`Horário de início: ${hora1}, horário de término: ${hora2}`);
-        res.json(keysWithHttps);
+        res.json({ jogosAtualizados, error: false });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Erro ao consultar a nossa API /productIds.' });

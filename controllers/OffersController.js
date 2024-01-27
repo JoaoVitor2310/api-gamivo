@@ -113,12 +113,21 @@ const editOffer = async (req, res) => {
                         },
                   });
 
-                  console.log(`O productId: ${productId}, na offerId: ${offerId}, teve o seu preço atualizado para: ${menorPreco}`);
-                  res.json(response.data);
+                  // console.log(`O productId: ${productId}, na offerId: ${offerId}, teve o seu preço atualizado para: ${menorPreco}(sem taxa)`);
+                  if(response.data == offerId){
+                        console.log('OK!')
+                        res.json(response.data);
+                  }else{
+                        console.log('Erro ao editar o preço');
+                        res.json(-5);
+                  }
             } catch (error) {
                   console.error(error);
                   res.status(500).json({ error: 'Erro ao consultar a API externa.' });
             }
+      }else{
+            console.log('Já somos o melhor preço.');
+            res.json(-5);
       }
 }
 
