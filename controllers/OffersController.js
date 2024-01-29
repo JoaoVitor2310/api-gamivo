@@ -98,14 +98,13 @@ const editOffer = async (req, res) => {
       // Armazena a hora que foi editado
 
       const { productId, menorPreco, offerId } = req.body; // Valores teste(foca nesse)
-      // const offerId = 2514907, menorPreco = 9.50; // Valores teste(foca nesse)
 
       const body = {
             "wholesale_mode": 0,
             "seller_price": menorPreco,
       };
 
-      if (offerId) {
+      if (offerId && productId !== 1767) { // Esse productId é de um jogo da gamivo que tem o preço mínimo diferente, iremos ignorar
             try {
                   const response = await axios.put(`${url}/api/public/v1/offers/${offerId}`, body, {
                         headers: {

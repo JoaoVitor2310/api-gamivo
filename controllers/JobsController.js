@@ -8,27 +8,25 @@ const nossaURL = process.env.NOSSAURL;
 
 
 const attPrices = async (req, res) => {
-    // Recebe os jogos que estão/tiveram a venda, compara para saber se tem o melhor preço e edita a oferta
+    // Recebe os jogos que estão a venda, compara para saber se tem o melhor preço e edita a oferta
 
     // Passo a passo
     // 1- Receber a lista das nossas ofertas(/productIds). FEITO
-    // 2 - Comparar com os vendedores concorrentes daquele jogo(/compareAll). FEITO
+    // 2 - Comparar com os vendedores concorrentes daquele jogo(/compareById). FEITO
     // 3 - Buscar o offerId daquele jogo. FEITO
-    // 4 - Buscar as keys daquele jogo. FEITO
-    // 5 - Buscar os dados daquele jogo na planilha com base na key. EM PROGRESSO
-    // 6 - Editar oferta para inserir o preço atualizado. 
+    // 4 - Editar oferta para inserir o preço atualizado. FEITO
 
     const hora1 = new Date().toLocaleTimeString();
 
     try {
         var keysInXLSX = [], keysWithHttps = [], jogosAtualizados = [];
+
         const response1 = await axios.get(`${nossaURL}/api/products/productIds`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             },
         });
-        // const myProductIds = response1.data;
-        const myProductIds = [34229, 37305, 145315, 11913, 46142, 71930];
+        const myProductIds = response1.data;
 
         //Comparar somente um por vez
         for (let productId of myProductIds) {
@@ -41,8 +39,6 @@ const attPrices = async (req, res) => {
                     },
                 }); // Recebe um objeto com o id do jogo, e o menor preço que pode ser: o preço mesmo, -1 para jogos impossíveis e -2 para jogos sem concorrentes, -4 quando já for o melhor preço
                 // console.log(response2.data);
-
-                // const dataToEdit = response2.data;
 
                 const dataToEdit = {
                     productId: response2.data.id,
@@ -62,8 +58,7 @@ const attPrices = async (req, res) => {
                         jogosAtualizados.push(response3.data);
                     }
                 } catch (error) {
-                    console.error(error);
-                    res.status(500).json({ error: 'Erro ao consultar a nossa API /editOffer.' });
+                    res.status(500).json({ error: 'Erro ao consultar a nossa API /editOffer.', dataToEdit });
                 }
 
             }
@@ -79,13 +74,6 @@ const attPrices = async (req, res) => {
         console.error(error);
         res.status(500).json({ error: 'Erro ao consultar a nossa API /productIds.' });
     }
-
-    //Tarefas:
-    // Colocar chaves de teste a venda para testar como funciona a venda
-
-    // Ideias futuras: 
-    // Definir o tempo que a api irá ficar checando se ainda está como o melhor preço
-    // Calculo do limite de preço deve ser: custo do jogo + taxa da gamivo + lucro mínimo, aí na hr de listar 1 centavo mais barato, o novo preço tem que ser maior do que o preço mínimo.
 }
 
 module.exports = {

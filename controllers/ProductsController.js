@@ -226,7 +226,11 @@ const compareById = async (req, res) => {
                         
                         if(menorPrecoTotal !== menorPrecoSemCandango){
                               console.log(`TEM CANDANGO NESSE JOGO.`)
-                              console.log(`menorPrecoTotal: ${menorPrecoTotal}, menorPrecoSemCandango: ${menorPrecoSemCandango}`)
+                              console.log(`menorPrecoTotal: ${menorPrecoTotal}, menorPrecoSemCandango: ${menorPrecoSemCandango}`);
+                              if(menorPrecoSemCandango == Number.MAX_SAFE_INTEGER){ // Caso os concorrentes sejam < 3 candangos e não tenha nenhum normal
+                                    res.json({ id, menorPreco: -4 });
+                                    return;
+                              }
                         }
 
                         if (segundoMenorPreco > 1.0) { // Lógica para os samfiteiros
@@ -263,6 +267,10 @@ const compareById = async (req, res) => {
                         }
                         console.log(`Para o menorPreco ${menorPreco.toFixed(3)} ser listado, o preço sem taxa deve ser: ${menorPrecoSemTaxa.toFixed(3)}`);
 
+                        if(menorPrecoSemTaxa < 0){
+                              menorPrecoSemTaxa = 0.00;
+                        }
+                        
                         res.json({ id, menorPreco: menorPrecoSemTaxa.toFixed(3), offerId });
                   }
             } else {
