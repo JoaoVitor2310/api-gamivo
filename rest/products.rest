@@ -1,9 +1,10 @@
-###
+### Calico EN/ZH Global 75153
+###GameGuru 46260
 GET http://localhost:3000/api/products/productsBySlug
 Content-Type: application/json
 
 {
-    "gameName": "CRYPTARK EN Global"
+    "gameName": ""
 }
 
 ###
@@ -22,4 +23,4 @@ Content-Type: application/json
 }
 
 ### Dá p descobrir o nome do jogo enviando o id para essa rota
-GET http://localhost:3000/api/products/compareById/40607                  
+GET http://localhost:3000/api/products/compareById/75153    

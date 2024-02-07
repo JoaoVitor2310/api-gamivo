@@ -143,22 +143,6 @@ const compareById = async (req, res) => {
 
       let menorPrecoComTaxa, menorPrecoSemTaxa, qtdCandango = 0;
 
-      // menorPreco = 25;
-      // if (menorPreco < 4) { // Calcula a taxa do novo preço
-      //       menorPrecoComTaxa = menorPreco + (menorPreco * taxaGamivoPorcentagemMenorQue4) + taxaGamivoFixoMenorQue4;
-      // } else {
-      //       menorPrecoComTaxa = menorPreco + (menorPreco * taxaGamivoPorcentagemMaiorIgual4) + taxaGamivoFixoMaiorIgual4;
-      // }
-      // console.log(menorPrecoComTaxa);
-
-      // if (menorPreco < 4) { // Calcula o preço sem taxa
-      //       menorPrecoSemTaxa = (menorPreco - taxaGamivoFixoMenorQue4) / (1 + taxaGamivoPorcentagemMenorQue4);
-      // }
-      // else {
-      //       menorPrecoSemTaxa = (menorPreco - taxaGamivoFixoMaiorIgual4) / (1 + taxaGamivoPorcentagemMaiorIgual4)
-      // }
-      // console.log(menorPrecoSemTaxa);
-
       // Definir o productId do jogo em questão
       const { id } = req.params; // O jogo está sendo recebido pelo id nos params
       try {
@@ -169,8 +153,8 @@ const compareById = async (req, res) => {
                   },
             });
 
-            // res.json(response.data); // Só descomentar caso queira ver as informações dos vendedores do jogo
-            // return;
+            res.json(response.data); // Só descomentar caso queira ver as informações dos vendedores do jogo
+            return;
 
             // Descobrir qual é o menor preço que ele está sendo vendido
             let menorPrecoSemCandango = Number.MAX_SAFE_INTEGER, menorPrecoComTaxa; // 
@@ -179,7 +163,7 @@ const compareById = async (req, res) => {
             let segundoMenorPreco; // Como vem ordenado, o segundo é sempre o segundo menor preço
             let offerId;
 
-            if (response.data[0].seller_name !== 'Bestbuy86') { // Checar se nós já somos o menor preço(se o seller_name == "Bestbuy86")
+            if (response.data[0].seller_name !== 'Bestbuy86') { // Checar se nós já somos o menor preço
 
                   //Separar caso que só tem ele vendendo
                   if (response.data[1]) {
@@ -197,7 +181,7 @@ const compareById = async (req, res) => {
                                     ignoreSeller = true;
                                     qtdCandango++;
                               }
-                              
+
                               if (precoAtual < menorPrecoTotal) {
                                     menorPrecoTotal = precoAtual; // Define um preço independente se é candango ou não
                               }
@@ -207,7 +191,7 @@ const compareById = async (req, res) => {
                                           menorPrecoSemCandango = precoAtual; // Define um preço considerando SOMENTE vendedores experientes
                                     }
                               }
-                        }else{
+                        } else {
                               offerId = produto.id;
                         }
                   }
@@ -223,11 +207,11 @@ const compareById = async (req, res) => {
                         console.log(`Você é o único vendedor do productId: ${id}`)
                         res.json({ id, menorPreco: -2 }); // Sem concorrentes
                   } else {
-                        
-                        if(menorPrecoTotal !== menorPrecoSemCandango){
+
+                        if (menorPrecoTotal !== menorPrecoSemCandango) {
                               console.log(`TEM CANDANGO NESSE JOGO.`)
                               console.log(`menorPrecoTotal: ${menorPrecoTotal}, menorPrecoSemCandango: ${menorPrecoSemCandango}`);
-                              if(menorPrecoSemCandango == Number.MAX_SAFE_INTEGER){ // Caso os concorrentes sejam < 3 candangos e não tenha nenhum normal
+                              if (menorPrecoSemCandango == Number.MAX_SAFE_INTEGER) { // Caso os concorrentes sejam < 3 candangos e não tenha nenhum normal
                                     res.json({ id, menorPreco: -4 });
                                     return;
                               }
@@ -267,14 +251,41 @@ const compareById = async (req, res) => {
                         }
                         console.log(`Para o menorPreco ${menorPreco.toFixed(3)} ser listado, o preço sem taxa deve ser: ${menorPrecoSemTaxa.toFixed(3)}`);
 
-                        if(menorPrecoSemTaxa < 0){
+                        if (menorPrecoSemTaxa < 0) {
                               menorPrecoSemTaxa = 0.00;
                         }
-                        
+
                         res.json({ id, menorPreco: menorPrecoSemTaxa.toFixed(3), offerId });
                   }
             } else {
-                  res.json({ id, menorPreco: -4 });
+                  if (response.data[1]){
+                        segundoMenorPreco = response.data[1].retail_price;
+                        const nossoPreco = response.data[0].retail_price;
+                        const diferenca = segundoMenorPreco - nossoPreco;
+                        
+                        if (diferenca >= 0.10) {
+                              menorPreco = segundoMenorPreco - 0.02;
+
+                              if (menorPreco < 4) {
+                                    menorPrecoSemTaxa = (menorPreco - taxaGamivoFixoMenorQue4) / (1 + taxaGamivoPorcentagemMenorQue4);
+                              }
+                              else {
+                                    menorPrecoSemTaxa = (menorPreco - taxaGamivoFixoMaiorIgual4) / (1 + taxaGamivoPorcentagemMaiorIgual4)
+                              }
+
+                              if (menorPrecoSemTaxa < 0) {
+                                    menorPrecoSemTaxa = 0.00;
+                              }
+
+                              offerId = response.data[0].id;
+                              console.log("ESTAMOS COM O PREÇO ABAIXO, IREMOS AUMENTAR!");
+                              res.json({ id, menorPreco: menorPrecoSemTaxa.toFixed(3), offerId });
+                        } else {
+                              res.json({ id, menorPreco: -4 });
+                        }
+                  }else{
+                        res.json({ id, menorPreco: -4 });
+                  }
             }
 
       } catch (error) {

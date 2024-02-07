@@ -104,7 +104,7 @@ const editOffer = async (req, res) => {
             "seller_price": menorPreco,
       };
 
-      if (offerId && productId !== 1767) { // Esse productId é de um jogo da gamivo que tem o preço mínimo diferente, iremos ignorar
+      if (offerId && productId !== "1767") { // Esse productId é de um jogo da gamivo que tem o preço mínimo diferente, iremos ignorar
             try {
                   const response = await axios.put(`${url}/api/public/v1/offers/${offerId}`, body, {
                         headers: {

@@ -35,5 +35,5 @@ Content-Type: application/json
 {
     "productId": 1767, 
     "menorPreco": 0.54,
-    "offerId": 2783132
+    "offerId": 2723355
 }
