@@ -153,8 +153,8 @@ const compareById = async (req, res) => {
                   },
             });
 
-            res.json(response.data); // Só descomentar caso queira ver as informações dos vendedores do jogo
-            return;
+            // res.json(response.data); // Só descomentar caso queira ver as informações dos vendedores do jogo
+            // return;
 
             // Descobrir qual é o menor preço que ele está sendo vendido
             let menorPrecoSemCandango = Number.MAX_SAFE_INTEGER, menorPrecoComTaxa; // 
