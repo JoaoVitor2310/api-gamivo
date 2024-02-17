@@ -252,17 +252,17 @@ const compareById = async (req, res) => {
                         console.log(`Para o menorPreco ${menorPreco.toFixed(3)} ser listado, o preço sem taxa deve ser: ${menorPrecoSemTaxa.toFixed(3)}`);
 
                         if (menorPrecoSemTaxa < 0) {
-                              menorPrecoSemTaxa = 0.00;
+                              menorPrecoSemTaxa = 0.01;
                         }
 
                         res.json({ id, menorPreco: menorPrecoSemTaxa.toFixed(3), offerId });
                   }
             } else {
-                  if (response.data[1]){
+                  if (response.data[1]) {
                         segundoMenorPreco = response.data[1].retail_price;
                         const nossoPreco = response.data[0].retail_price;
                         const diferenca = segundoMenorPreco - nossoPreco;
-                        
+
                         if (diferenca >= 0.10) {
                               menorPreco = segundoMenorPreco - 0.02;
 
@@ -274,7 +274,7 @@ const compareById = async (req, res) => {
                               }
 
                               if (menorPrecoSemTaxa < 0) {
-                                    menorPrecoSemTaxa = 0.00;
+                                    menorPrecoSemTaxa = 0.01;
                               }
 
                               offerId = response.data[0].id;
@@ -283,7 +283,7 @@ const compareById = async (req, res) => {
                         } else {
                               res.json({ id, menorPreco: -4 });
                         }
-                  }else{
+                  } else {
                         res.json({ id, menorPreco: -4 });
                   }
             }
