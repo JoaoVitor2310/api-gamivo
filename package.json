@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js",
+    "dev": "nodemon index.js",
     "teste": "nodemon teste-main.js",
     "abrir": "nodemon comparador.js"
   },
@@ -22,6 +22,8 @@
     "express": "^4.18.2",
     "fast-csv": "^5.0.0",
     "hot-formula-parser": "^4.0.0",
+    "node-cron": "^3.0.3",
+    "pm2": "^5.3.1",
     "slugify": "^1.6.6",
     "xlsx": "^0.18.5"
   }
