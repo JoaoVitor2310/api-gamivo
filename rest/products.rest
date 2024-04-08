@@ -23,4 +23,7 @@ Content-Type: application/json
 }
 
 ### Dá p descobrir o nome do jogo enviando o id para essa rota
-GET http://localhost:3000/api/products/compareById/75153    
+GET http://localhost:3000/api/products/compareById/132666    
+
+### Dá p descobrir o nome do jogo enviando o id para essa rota
+GET http://localhost:3000/api/products/priceResearcher/undefined
