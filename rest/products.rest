@@ -23,7 +23,7 @@ Content-Type: application/json
 }
 
 ### Dá p descobrir o nome do jogo enviando o id para essa rota
-GET http://localhost:3000/api/products/compareById/132666    
+GET http://localhost:3000/api/products/compareById/144483
 
 ### Dá p descobrir o nome do jogo enviando o id para essa rota
-GET http://localhost:3000/api/products/priceResearcher/undefined
+GET http://localhost:3000/api/products/priceResearcher/sex-with-the-devil

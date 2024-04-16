@@ -1,5 +1,6 @@
 const axios = require('axios');
 const slugify = require('slugify');
+const { calcPrecoSemTaxa } = require('../functions/calcPrecoSemTaxa.js');
 const url = process.env.URL;
 const token = process.env.TOKEN;
 const taxaGamivoPorcentagemMaiorIgual4 = Number(process.env.TAXA_GAMIVO_PORCENTAGEM_MAIORIGUAL_4);
@@ -161,7 +162,7 @@ const compareById = async (req, res) => {
             let menorPrecoTotal = Number.MAX_SAFE_INTEGER; // Define um preço alto para depois ser substituído pelos menores preços de verdade
             let menorPreco; // Só para enviar na resposta
             let segundoMenorPreco; // Como vem ordenado, o segundo é sempre o segundo menor preço
-            let offerId;
+            let offerId, wholesale_mode, wholesale_price_tier_one, wholesale_price_tier_two, menorPrecoParaWholesale;
 
             if (response.data[0].seller_name !== 'Bestbuy86') { // Checar se nós já somos o menor preço
 
@@ -193,6 +194,9 @@ const compareById = async (req, res) => {
                               }
                         } else {
                               offerId = produto.id;
+                              wholesale_mode = produto.wholesale_mode;
+                              wholesale_price_tier_one = produto.wholesale_price_tier_one;
+                              wholesale_price_tier_two = produto.wholesale_price_tier_two;
                         }
                   }
 
@@ -243,43 +247,54 @@ const compareById = async (req, res) => {
 
                         // Calcula o novo preço sem a taxa, a gamivo irá adicionar as taxas dps, e o menorPreco será atingido
                         menorPreco = menorPreco - 0.02;
-                        if (menorPreco < 4) {
-                              menorPrecoSemTaxa = (menorPreco - taxaGamivoFixoMenorQue4) / (1 + taxaGamivoPorcentagemMenorQue4);
-                        }
-                        else {
-                              menorPrecoSemTaxa = (menorPreco - taxaGamivoFixoMaiorIgual4) / (1 + taxaGamivoPorcentagemMaiorIgual4)
-                        }
-                        console.log(`Para o menorPreco ${menorPreco.toFixed(3)} ser listado, o preço sem taxa deve ser: ${menorPrecoSemTaxa.toFixed(3)}`);
+                        menorPrecoSemTaxa = calcPrecoSemTaxa(menorPreco);
 
-                        if (menorPrecoSemTaxa < 0) {
-                              menorPrecoSemTaxa = 0.01;
-                        }
+                        
+                        // if (menorPreco < 4) {
+                        //       menorPrecoSemTaxa = (menorPreco - taxaGamivoFixoMenorQue4) / (1 + taxaGamivoPorcentagemMenorQue4);
+                        // }
+                        // else {
+                        //       menorPrecoSemTaxa = (menorPreco - taxaGamivoFixoMaiorIgual4) / (1 + taxaGamivoPorcentagemMaiorIgual4)
+                        // }
 
-                        res.json({ id, menorPreco: menorPrecoSemTaxa.toFixed(3), offerId });
+                        // if (menorPrecoSemTaxa < 0) {
+                        //       menorPrecoSemTaxa = 0.01;
+                        // }
+
+                        console.log(`Para o menorPreco ${menorPreco.toFixed(2)} ser listado, o preço sem taxa deve ser: ${menorPrecoSemTaxa.toFixed(2)}`);
+
+
+                        res.json({ id, menorPreco: menorPrecoSemTaxa.toFixed(2), offerId, wholesale_mode, wholesale_price_tier_one, wholesale_price_tier_two, menorPrecoParaWholesale: menorPreco.toFixed(2) });
                   }
             } else {
+                  offerId = response.data[0].id;
+                  wholesale_mode = response.data[0].wholesale_mode;
+                  wholesale_price_tier_one = response.data[0].wholesale_price_tier_one;
+                  wholesale_price_tier_two = response.data[0].wholesale_price_tier_two;
+
                   if (response.data[1]) {
                         segundoMenorPreco = response.data[1].retail_price;
                         const nossoPreco = response.data[0].retail_price;
                         const diferenca = segundoMenorPreco - nossoPreco;
 
+                        
                         if (diferenca >= 0.10) {
                               menorPreco = segundoMenorPreco - 0.02;
+                              menorPrecoSemTaxa = calcPrecoSemTaxa(menorPreco);
 
-                              if (menorPreco < 4) {
-                                    menorPrecoSemTaxa = (menorPreco - taxaGamivoFixoMenorQue4) / (1 + taxaGamivoPorcentagemMenorQue4);
-                              }
-                              else {
-                                    menorPrecoSemTaxa = (menorPreco - taxaGamivoFixoMaiorIgual4) / (1 + taxaGamivoPorcentagemMaiorIgual4)
-                              }
+                              // if (menorPreco < 4) {
+                              //       menorPrecoSemTaxa =  (menorPreco - taxaGamivoFixoMenorQue4) / (1 + taxaGamivoPorcentagemMenorQue4);
+                              // }
+                              // else {
+                              //       menorPrecoSemTaxa = (menorPreco - taxaGamivoFixoMaiorIgual4) / (1 + taxaGamivoPorcentagemMaiorIgual4)
+                              // }
 
-                              if (menorPrecoSemTaxa < 0) {
-                                    menorPrecoSemTaxa = 0.01;
-                              }
+                              // if (menorPrecoSemTaxa < 0) {
+                              //       menorPrecoSemTaxa = 0.01;
+                              // }
 
-                              offerId = response.data[0].id;
                               console.log("ESTAMOS COM O PREÇO ABAIXO, IREMOS AUMENTAR!");
-                              res.json({ id, menorPreco: menorPrecoSemTaxa.toFixed(3), offerId });
+                              res.json({ id, menorPreco: menorPrecoSemTaxa.toFixed(2), offerId, wholesale_mode, wholesale_price_tier_one, wholesale_price_tier_two, menorPrecoParaWholesale: menorPreco.toFixed(2) });
                         } else {
                               res.json({ id, menorPreco: -4 });
                         }

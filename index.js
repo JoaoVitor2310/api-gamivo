@@ -16,7 +16,6 @@ app.get('/', (req, res) => {
 cron.schedule('0 */4 * * *', async () => { // Iremos colocar a api para atualizar os preços a cada 4 horas(cliente pediu)
       try {
           const response = await axios.get(`${nossaURL}/api/jobs/attPrices`);
-          console.log('Endpoint chamado com sucesso');
       } catch (error) {
           console.error('Erro ao chamar o endpoint:', error);
       }

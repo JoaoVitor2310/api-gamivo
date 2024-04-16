@@ -27,6 +27,8 @@ const attPrices = async (req, res) => {
             },
         });
         const myProductIds = response1.data;
+        // const myProductIds = [134506, 709]; // Debug
+        // const myOfferIds = [2818018, 2750786]; // Debug
 
         //Comparar somente um por vez
         for (let productId of myProductIds) {
@@ -43,7 +45,11 @@ const attPrices = async (req, res) => {
                 const dataToEdit = {
                     productId: response2.data.id,
                     menorPreco: response2.data.menorPreco,
-                    offerId: response2.data.offerId
+                    offerId: response2.data.offerId,
+                    wholesale_mode: response2.data.wholesale_mode,
+                    wholesale_price_tier_one: response2.data.wholesale_price_tier_one,
+                    wholesale_price_tier_two: response2.data.wholesale_price_tier_two,
+                    menorPrecoParaWholesale: response2.data.menorPrecoParaWholesale,
                 };
                 // console.log(dataToEdit);
 
@@ -58,21 +64,26 @@ const attPrices = async (req, res) => {
                         jogosAtualizados.push(response3.data);
                     }
                 } catch (error) {
+                    console.error(error);
                     res.status(500).json({ error: 'Erro ao consultar a nossa API /editOffer.', dataToEdit });
+                    // return;
                 }
-
+                
             }
             catch (error) {
                 console.error(error);
                 res.status(500).json({ error: 'Erro ao consultar a nossa API /compareById.' });
+                // return;
             }
         }
         const hora2 = new Date().toLocaleTimeString();
         console.log(`Horário de início: ${hora1}, horário de término: ${hora2}`);
         res.json({ jogosAtualizados, error: false });
+        return;
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Erro ao consultar a nossa API /productIds.' });
+        // return;
     }
 }
 

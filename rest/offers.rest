@@ -26,14 +26,17 @@ Content-Type: application/json
 }
 
 ### searchOfferById productId = 45746
-GET http://localhost:3000/api/offers/search/2783132
+GET http://localhost:3000/api/offers/search/3027619
 
 ### O productId é "inútil" para editar
 PUT http://localhost:3000/api/offers/editOffer
 Content-Type: application/json
 
 {
-    "productId": 1767, 
-    "menorPreco": 0.54,
-    "offerId": 2723355
+    "productId": 2750786, 
+    "offerId": 2818018,
+    "menorPreco": 0.69,
+    "wholesale_mode": 1,
+    "wholesale_price_tier_one": 0.70,
+    "wholesale_price_tier_two": 0.70
 }

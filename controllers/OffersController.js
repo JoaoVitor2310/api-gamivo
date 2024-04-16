@@ -1,6 +1,9 @@
 const axios = require('axios');
+const { calcPrecoSemTaxa } = require('../functions/calcPrecoSemTaxa.js');
 const url = process.env.URL;
 const token = process.env.TOKEN;
+
+const taxaWholesale = process.env.taxaWholesale;
 
 
 const offerList = async (req, res) => {
@@ -91,20 +94,79 @@ const searchOfferById = async (req, res) => {
 
 const editOffer = async (req, res) => {
       // Passo a passo
-      // Recebe o offerId, valorPago, menorPreco, productId pelo body
+      // Recebe o offerId, menorPreco, productId pelo body
       // Define o limite da api?
       // Edita pelo offerId
       // Edita os dados
       // Armazena a hora que foi editado
 
-      const { productId, menorPreco, offerId } = req.body; // Valores teste(foca nesse)
+      const { productId, menorPreco, offerId, wholesale_mode, menorPrecoParaWholesale } = req.body; // Valores teste(foca nesse)
+      let { wholesale_price_tier_one, wholesale_price_tier_two } = req.body;
+      let body;
 
-      const body = {
-            "wholesale_mode": 0,
-            "seller_price": menorPreco,
-      };
 
       if (offerId && productId !== "1767") { // Esse productId é de um jogo da gamivo que tem o preço mínimo diferente, iremos ignorar
+            // Debug
+            // console.log(productId); // Inútil para editar
+            // console.log(menorPreco);
+            // console.log(offerId);
+            // console.log(wholesale_mode);
+            // console.log(wholesale_price_tier_one);
+            // console.log(wholesale_price_tier_two);
+            // console.log("menorPrecoParaWholesale: " + menorPrecoParaWholesale);
+
+            switch (wholesale_mode) {
+                  case 0:
+                        body = {
+                              "wholesale_mode": 0,
+                              "seller_price": menorPreco,
+                        };
+                        break;
+                  case 1:
+                        console.log("AUAUAU O valor wholesale_mode é 1.");
+
+                        // wholesale_price_tier_one = wholesale_price_tier_one / taxaWholesale;
+                        // wholesale_price_tier_two = wholesale_price_tier_one / taxaWholesale;
+
+                        wholesale_price_tier_one = menorPrecoParaWholesale / taxaWholesale;
+                        wholesale_price_tier_two = menorPrecoParaWholesale / taxaWholesale;
+
+                        body = { // Tá dando que o seller_price tem que ser maior que o wholesale
+                              "wholesale_mode": 1,
+                              "seller_price": menorPreco,
+                              "tier_one_seller_price": wholesale_price_tier_one,
+                              "tier_two_seller_price": wholesale_price_tier_two
+                        };
+                        console.log("O valor wholesale_mode é 1.");
+                        break;
+                  case 2:
+                        console.log("AUAUAU O valor wholesale_mode é 2.");
+
+                        wholesale_price_tier_one = menorPrecoParaWholesale / taxaWholesale;
+                        wholesale_price_tier_two = menorPrecoParaWholesale / taxaWholesale;
+
+
+                        console.log("wholesale_price_tier_one: " + wholesale_price_tier_one);
+                        console.log("menorPreco: " + menorPreco);
+
+                        body = {
+                              "wholesale_mode": 2,
+                              "seller_price": menorPreco,
+                              "tier_one_seller_price": wholesale_price_tier_one,
+                              "tier_two_seller_price": wholesale_price_tier_two
+                        };
+                        console.log("O valor wholesale_mode é 2.");
+                        break;
+                  default:
+                        console.log("O valor wholesale_mode não é 0, 1 ou 2.");
+                        break;
+            }
+
+            // console.log(body);
+            // res.json(offerId); // Debug
+            // return;
+
+
             try {
                   const response = await axios.put(`${url}/api/public/v1/offers/${offerId}`, body, {
                         headers: {
@@ -113,10 +175,10 @@ const editOffer = async (req, res) => {
                   });
 
                   // console.log(`O productId: ${productId}, na offerId: ${offerId}, teve o seu preço atualizado para: ${menorPreco}(sem taxa)`);
-                  if(response.data == offerId){
+                  if (response.data == offerId) {
                         console.log('OK!')
                         res.json(response.data);
-                  }else{
+                  } else {
                         console.log('Erro ao editar o preço');
                         res.json(-5);
                   }
@@ -124,7 +186,7 @@ const editOffer = async (req, res) => {
                   console.error(error);
                   res.status(500).json({ error: 'Erro ao consultar a API externa.' });
             }
-      }else{
+      } else {
             console.log('Já somos o melhor preço.');
             res.json(-5);
       }
