@@ -1,9 +1,11 @@
 const axios = require('axios');
 const { calcPrecoSemTaxa } = require('../functions/calcPrecoSemTaxa.js');
+const { calcWholesaleSemTaxa } = require('../functions/calcWholesaleSemTaxa.js');
 const url = process.env.URL;
 const token = process.env.TOKEN;
 
 const taxaWholesale = process.env.taxaWholesale;
+const nomeVendedor = process.env.nomeVendedor;
 
 
 const offerList = async (req, res) => {
@@ -123,13 +125,12 @@ const editOffer = async (req, res) => {
                         };
                         break;
                   case 1:
-                        console.log("AUAUAU O valor wholesale_mode é 1.");
 
-                        // wholesale_price_tier_one = wholesale_price_tier_one / taxaWholesale;
-                        // wholesale_price_tier_two = wholesale_price_tier_one / taxaWholesale;
+                        wholesale_price_tier_one = calcWholesaleSemTaxa(menorPrecoParaWholesale);
+                        wholesale_price_tier_two = calcWholesaleSemTaxa(menorPrecoParaWholesale);
 
-                        wholesale_price_tier_one = menorPrecoParaWholesale / taxaWholesale;
-                        wholesale_price_tier_two = menorPrecoParaWholesale / taxaWholesale;
+                        console.log("wholesale_price_tier_one: " + wholesale_price_tier_one);
+                        console.log("menorPreco: " + menorPreco);
 
                         body = { // Tá dando que o seller_price tem que ser maior que o wholesale
                               "wholesale_mode": 1,
@@ -140,11 +141,8 @@ const editOffer = async (req, res) => {
                         console.log("O valor wholesale_mode é 1.");
                         break;
                   case 2:
-                        console.log("AUAUAU O valor wholesale_mode é 2.");
-
-                        wholesale_price_tier_one = menorPrecoParaWholesale / taxaWholesale;
-                        wholesale_price_tier_two = menorPrecoParaWholesale / taxaWholesale;
-
+                        wholesale_price_tier_one = calcWholesaleSemTaxa(menorPrecoParaWholesale);
+                        wholesale_price_tier_two = calcWholesaleSemTaxa(menorPrecoParaWholesale);
 
                         console.log("wholesale_price_tier_one: " + wholesale_price_tier_one);
                         console.log("menorPreco: " + menorPreco);
@@ -161,11 +159,6 @@ const editOffer = async (req, res) => {
                         console.log("O valor wholesale_mode não é 0, 1 ou 2.");
                         break;
             }
-
-            // console.log(body);
-            // res.json(offerId); // Debug
-            // return;
-
 
             try {
                   const response = await axios.put(`${url}/api/public/v1/offers/${offerId}`, body, {
@@ -192,6 +185,21 @@ const editOffer = async (req, res) => {
       }
 }
 
+const calculatePrices = async (req, res) => {
+      const { retail, wholesale } = req.body;
+
+      const retailSemTaxa = calcPrecoSemTaxa(retail).toFixed(2);
+      const wholesaleSemTaxa = calcWholesaleSemTaxa(wholesale).toFixed(2);
+      const data = {
+            retailSemTaxa,
+            wholesaleSemTaxa
+      }
+      
+      res.json(data);
+      return;
+}
+
+
 const returnOfferId = async (req, res) => {
       // Retornar o offerId daquele productId
 
@@ -207,7 +215,7 @@ const returnOfferId = async (req, res) => {
             // res.json(response.data);
 
             var objetoEncontrado = response.data.find(function (objeto) { // Procura pelo objeto que é vendido por nós, e retorna a offerId
-                  return objeto.seller_name === 'Bestbuy86'; // Nome do vendedor tem que ser da nossa loja
+                  return objeto.seller_name === nomeVendedor; // Nome do vendedor tem que ser da nossa loja
             });
 
             if (!objetoEncontrado) { // Se nós temos o produto mas a oferta não está ativa(status = 0)
@@ -261,5 +269,6 @@ module.exports = {
       searchOfferById,
       editOffer,
       offerKeys,
-      returnOfferId
+      returnOfferId,
+      calculatePrices
 }

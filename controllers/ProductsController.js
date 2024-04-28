@@ -3,6 +3,7 @@ const slugify = require('slugify');
 const { calcPrecoSemTaxa } = require('../functions/calcPrecoSemTaxa.js');
 const url = process.env.URL;
 const token = process.env.TOKEN;
+const nomeVendedor = process.env.nomeVendedor;
 const taxaGamivoPorcentagemMaiorIgual4 = Number(process.env.TAXA_GAMIVO_PORCENTAGEM_MAIORIGUAL_4);
 const taxaGamivoFixoMaiorIgual4 = Number(process.env.TAXA_GAMIVO_FIXO_MAIORIGUAL_4);
 const taxaGamivoPorcentagemMenorQue4 = Number(process.env.TAXA_GAMIVO_PORCENTAGEM_MENOR_QUE4);
@@ -164,7 +165,7 @@ const compareById = async (req, res) => {
             let segundoMenorPreco; // Como vem ordenado, o segundo é sempre o segundo menor preço
             let offerId, wholesale_mode, wholesale_price_tier_one, wholesale_price_tier_two, menorPrecoParaWholesale;
 
-            if (response.data[0].seller_name !== 'Bestbuy86') { // Checar se nós já somos o menor preço
+            if (response.data[0].seller_name !== nomeVendedor) { // Checar se nós já somos o menor preço
 
                   //Separar caso que só tem ele vendendo
                   if (response.data[1]) {
@@ -172,7 +173,7 @@ const compareById = async (req, res) => {
                   }
 
                   for (const produto of response.data) {
-                        if (produto.seller_name !== 'Bestbuy86') {
+                        if (produto.seller_name !== nomeVendedor) {
                               let ignoreSeller = false; // True = candango, false = vendedor experiente
                               // Obtém o preço de varejo do produto
 
@@ -227,7 +228,7 @@ const compareById = async (req, res) => {
 
                               if (diferenca >= dezPorCentoSegundoMenorPreco) {
                                     console.log('SAMFITEIRO!');
-                                    if (response.data[1].seller_name == 'Bestbuy86') { // Tem samfiteiro, mas ele é o segundo, não altera o preço
+                                    if (response.data[1].seller_name == nomeVendedor) { // Tem samfiteiro, mas ele é o segundo, não altera o preço
                                           console.log('Já somos o segundo melhor preço!');
                                           res.json({ id, menorPreco: -4 });
                                           return;
@@ -266,7 +267,7 @@ const compareById = async (req, res) => {
 
                         res.json({ id, menorPreco: menorPrecoSemTaxa.toFixed(2), offerId, wholesale_mode, wholesale_price_tier_one, wholesale_price_tier_two, menorPrecoParaWholesale: menorPreco.toFixed(2) });
                   }
-            } else {
+            } else { // Nós somos o menor preço
                   offerId = response.data[0].id;
                   wholesale_mode = response.data[0].wholesale_mode;
                   wholesale_price_tier_one = response.data[0].wholesale_price_tier_one;
@@ -281,17 +282,6 @@ const compareById = async (req, res) => {
                         if (diferenca >= 0.10) {
                               menorPreco = segundoMenorPreco - 0.02;
                               menorPrecoSemTaxa = calcPrecoSemTaxa(menorPreco);
-
-                              // if (menorPreco < 4) {
-                              //       menorPrecoSemTaxa =  (menorPreco - taxaGamivoFixoMenorQue4) / (1 + taxaGamivoPorcentagemMenorQue4);
-                              // }
-                              // else {
-                              //       menorPrecoSemTaxa = (menorPreco - taxaGamivoFixoMaiorIgual4) / (1 + taxaGamivoPorcentagemMaiorIgual4)
-                              // }
-
-                              // if (menorPrecoSemTaxa < 0) {
-                              //       menorPrecoSemTaxa = 0.01;
-                              // }
 
                               console.log("ESTAMOS COM O PREÇO ABAIXO, IREMOS AUMENTAR!");
                               res.json({ id, menorPreco: menorPrecoSemTaxa.toFixed(2), offerId, wholesale_mode, wholesale_price_tier_one, wholesale_price_tier_two, menorPrecoParaWholesale: menorPreco.toFixed(2) });
@@ -345,19 +335,19 @@ const priceResearcher = async (req, res) => {
             let menorPreco; // Só para enviar na resposta
             let segundoMenorPreco; // Como vem ordenado, o segundo é sempre o segundo menor preço
 
-            if (response2.data[0].seller_name !== 'Bestbuy86') { // Nós não somos o menor preço
+            if (response2.data[0].seller_name !== nomeVendedor) { // Nós não somos o menor preço
 
                   //Separar caso que só tem ele vendendo
                   if (response2.data[1]) {
                         segundoMenorPreco = response2.data[1].retail_price;
                   }
 
-                  if (response2.data[0].seller_name == 'Kinguin' && response2.data[1].seller_name == 'Bestbuy86') {
+                  if (response2.data[0].seller_name == 'Kinguin' && response2.data[1].seller_name == nomeVendedor) {
                         casoEspecial = true;
-                        console.log(`1° - Kinguin, 2° - Bestbuy86`)
+                        console.log(`1° - Kinguin, 2° - ${nomeVendedor}`)
                   } else {
                         for (const produto of response2.data) {
-                              if (produto.seller_name !== 'Bestbuy86' && produto.seller_name !== 'Kinguin') {
+                              if (produto.seller_name !== nomeVendedor && produto.seller_name !== 'Kinguin') {
                                     let ignoreSeller = false; // True = candango, false = vendedor experiente
                                     // Obtém o preço de varejo do produto
 
@@ -415,14 +405,14 @@ const priceResearcher = async (req, res) => {
 
                                     if (diferenca >= dezPorCentoSegundoMenorPreco) {
                                           console.log('SAMFITEIRO!');
-                                          if (response2.data[1].seller_name == 'Bestbuy86') { // Tem samfiteiro, somos o segundo, não altera o preço
+                                          if (response2.data[1].seller_name == nomeVendedor) { // Tem samfiteiro, somos o segundo, não altera o preço
                                                 console.log('Já somos o segundo melhor preço!');
                                                 res.json({ id, menorPreco: response2.data[1].retail_price });
                                                 return;
                                           } else { // Tem samfiteiro, mas ele não é o segundo, altera o preço
                                                 console.log(`Menor preço antes: ${menorPreco}`);
                                                 menorPreco = response2.data[1].retail_price;
-                                                console.log(`Menor preço depois ----------------------------------------: ${menorPreco}`);
+                                                console.log(`Menor preço depois do samfiteiro: ${menorPreco}`);
                                           }
                                     }
                               }
@@ -436,7 +426,7 @@ const priceResearcher = async (req, res) => {
                               res.json({ id, menorPreco: menorPreco.toFixed(2) });
                         }
                   }
-            } else if (response2.data[0].seller_name == 'Bestbuy86') { // Considerando que podemos estar com o preço abaixo
+            } else if (response2.data[0].seller_name == nomeVendedor) { // Considerando que podemos estar com o preço abaixo
                   if (response2.data[1]) {
                         if (response2.data[1].seller_name !== 'Kinguin') {
                               segundoMenorPreco = response2.data[1].retail_price;
@@ -450,7 +440,7 @@ const priceResearcher = async (req, res) => {
 
                         let nossoPreco;
 
-                        if (response2.data[0].seller_name == 'Bestbuy86') {
+                        if (response2.data[0].seller_name == nomeVendedor) {
                               nossoPreco = response2.data[0].retail_price;
                         } else {
                               nossoPreco = response2.data.data[1].retail_price;
@@ -488,7 +478,7 @@ const priceResearcher = async (req, res) => {
                         }
 
                         let nossoPreco;
-                        if (response2.data[0].seller_name == 'Bestbuy86') {
+                        if (response2.data[0].seller_name == nomeVendedor) {
                               nossoPreco = response2.data[0].retail_price;
                         } else {
                               nossoPreco = response2.data[1].retail_price;

@@ -33,10 +33,18 @@ PUT http://localhost:3000/api/offers/editOffer
 Content-Type: application/json
 
 {
-    "productId": 2750786, 
-    "offerId": 2818018,
-    "menorPreco": 0.69,
+    "offerId": 2954529,
+    "menorPreco": 0.22,
     "wholesale_mode": 1,
-    "wholesale_price_tier_one": 0.70,
-    "wholesale_price_tier_two": 0.70
+    "menorPrecoParaWholesale": 0.33
+}
+
+
+### O productId é "inútil" para editar
+POST http://localhost:3000/api/offers/calculatePrices
+Content-Type: application/json
+
+{
+    "retail": 0.33,
+    "wholesale": 0.33
 }
